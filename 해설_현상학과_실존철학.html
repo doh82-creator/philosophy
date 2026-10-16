@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>해설 · 현상학과 실존철학</title>
+<style>
+  :root {
+    --ink: #1c2230; --sub: #5a6375; --line: #e2e5ec; --bg: #f6f5f1; --card: #ffffff;
+    --accent: #2f4b8f; --accent-soft: #e8edf8;
+    --teal: #1f5a5e; --teal-soft: #e3f1f1;
+    --amber: #9a6417; --amber-soft: #faefdc;
+    --plum: #4a3558; --plum-soft: #f1ebf5;
+    --todo: #fff6cf;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 16px; line-height: 1.7; word-break: keep-all;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header { background: var(--teal); color: #fff; padding: 28px 20px 44px; }
+  header .inner { max-width: 920px; margin: 0 auto; }
+  .back { display: inline-block; color: #fff; opacity: .85; font-size: 14px; text-decoration: none; margin: 0 16px 26px 0; }
+  .back:hover { opacity: 1; text-decoration: underline; }
+  .eyebrow { font-size: 14px; letter-spacing: .08em; opacity: .8; margin: 0 0 8px; }
+  h1 { font-size: clamp(28px, 5.2vw, 44px); line-height: 1.2; margin: 0 0 14px; }
+  .lead { margin: 0; font-size: 17px; max-width: 660px; opacity: .92; }
+
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: -22px; position: relative; }
+  .duo > div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; border-top-width: 6px; }
+  .duo .ph { border-top-color: var(--teal); } .duo .ex { border-top-color: var(--amber); }
+  .duo small { display: block; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin-bottom: 2px; }
+  .duo .ph small { color: var(--teal); } .duo .ex small { color: var(--amber); }
+  .duo b { font-size: 20px; display: block; margin-bottom: 6px; }
+  .duo p { margin: 0; }
+
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 8px; }
+  nav a { font-size: 14px; text-decoration: none; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; }
+  nav a:hover { background: var(--accent); color: #fff; }
+
+  section { margin-top: 56px; }
+  h2 { font-size: 23px; margin: 0 0 6px; display: flex; align-items: center; gap: 12px; }
+  h2 .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; font-size: 16px; display: grid; place-items: center; }
+  .desc { color: var(--sub); margin: 0 0 20px; }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; }
+  ul { margin: 6px 0 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .muted { color: var(--sub); }
+  a.in { color: var(--accent); font-weight: 700; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card > :last-child { margin-bottom: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  /* 개념 카드 */
+  .idea { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px;  }
+  .idea h3 { font-size: 19px; }
+  .idea .say { font-size: 13px; font-weight: 700; color: var(--teal); letter-spacing: .02em; }
+  .idea.ex .say { color: var(--amber); }
+  .idea .eg { margin: 10px 0 0; padding: 9px 14px; border-radius: 8px; background: var(--teal-soft); font-size: 15px; }
+  .idea.ex .eg { background: var(--amber-soft); }
+  .idea .eg b { font-size: 13px; }
+  .idea > :last-child { margin-bottom: 0; }
+
+  /* 계보 */
+  .tree { display: grid; gap: 0; }
+  .tier { display: grid; gap: 10px; }
+  .tier.t2 { grid-template-columns: 1fr 1fr; } .tier.t3 { grid-template-columns: repeat(3, 1fr); } .tier.t4 { grid-template-columns: repeat(4, 1fr); }
+  .node { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; text-align: center; }
+  .node b { display: block; font-size: 16.5px; }
+  .node span { font-size: 13.5px; color: var(--sub); }
+  .node.root { background: #eef0f4; } .node.ph { border-top: 5px solid var(--teal); } .node.ex { border-top: 5px solid var(--amber); }
+  .node.ar { border: 2px solid var(--plum); background: var(--plum-soft); }
+  .down { text-align: center; color: var(--sub); font-size: 13px; padding: 6px 0; }
+  .down::before { content: "↓ "; }
+  .tierlabel { font-size: 13px; font-weight: 700; color: var(--sub); letter-spacing: .03em; margin: 0 0 6px; }
+
+  /* 인물 */
+  .ph-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; }
+  .ph-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 8px; }
+  .ph-head b { font-size: 19px; }
+  .ph-head .yrs { font-size: 14px; color: var(--sub); }
+  .ph-head .tag { font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 0 10px; }
+  .tag.ph { background: var(--teal-soft); color: var(--teal); } .tag.ex { background: var(--amber-soft); color: var(--amber); }
+  .ph-card .one { font-weight: 700; margin-bottom: 6px; }
+  .ph-card .work { font-size: 14px; color: var(--sub); margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); }
+
+  /* 작품 카드 */
+  .work .kind { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 10px; margin-bottom: 8px; }
+  .work h3 { font-size: 19px; margin: 0; }
+  .work .who { font-size: 14.5px; color: var(--sub); margin: 0 0 8px; }
+  .work .tie { font-size: 14px; margin: 0; padding-top: 8px; border-top: 1px dashed var(--line); color: var(--amber); }
+
+  .tbl-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  table.cmp { width: 100%; border-collapse: collapse; min-width: 560px; }
+  table.cmp th, table.cmp td { padding: 12px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  table.cmp tr:last-child td, table.cmp tr:last-child th { border-bottom: 0; }
+  table.cmp thead th:nth-child(2) { background: var(--teal-soft); color: var(--teal); }
+  table.cmp thead th:nth-child(3) { background: var(--amber-soft); color: var(--amber); }
+  table.cmp tbody th { width: 120px; color: var(--sub); font-weight: 600; white-space: nowrap; }
+
+  .link-row { display: grid; grid-template-columns: 1fr 34px 1fr; align-items: stretch; margin-bottom: 10px; }
+  .link-row .from { background: #eef0f4; border-radius: 12px; padding: 12px 16px; }
+  .link-row .to { background: var(--plum-soft); border-radius: 12px; padding: 12px 16px; }
+  .link-row .arrow { display: grid; place-items: center; color: var(--sub); font-size: 20px; }
+  .link-row small { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .03em; color: var(--sub); }
+  .link-row .to small { color: var(--plum); }
+
+  .qs { counter-reset: q; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .qs li { counter-increment: q; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 14px 54px; position: relative; margin: 0; }
+  .qs li::before { content: "Q" counter(q); position: absolute; left: 16px; top: 13px; font-weight: 800; color: var(--accent); }
+
+  .note { margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: var(--todo); font-size: 14.5px; }
+  footer { margin-top: 64px; text-align: center; color: var(--sub); font-size: 13.5px; }
+  footer a { color: var(--accent); margin: 0 8px; }
+
+  @media (max-width: 720px) {
+    .duo, .grid2, .grid3 { grid-template-columns: 1fr; }
+    .tier.t3, .tier.t4 { grid-template-columns: 1fr 1fr; }
+    .link-row { grid-template-columns: 1fr; }
+    .link-row .arrow { transform: rotate(90deg); padding: 2px 0; }
+  }
+  @media print {
+    body { background: #fff; font-size: 12.5px; }
+    nav, .back { display: none; }
+    header { padding: 24px 20px 30px; }
+    .duo { margin-top: 12px; }
+    section { margin-top: 26px; }
+    .card, .idea, .ph-card, .link-row, .qs li, .tbl-wrap, .tree { break-inside: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+<link rel="stylesheet" href="document-nav.css">
+</head>
+<body>
+<div class="ph-portal-bar" role="navigation" aria-label="철학 자료 포털">
+  <div class="ph-portal-inner">
+    <a href="./index.html"><span class="ph-portal-mark" aria-hidden="true"></span>현대철학 독서동아리</a>
+    <a class="ph-portal-list" href="./index.html#resources">자료 목록 ↗</a>
+  </div>
+</div>
+
+<header>
+  <div class="inner">
+    <a class="back" href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내</a>
+    <a class="back" href="인물_한나_아렌트.html">← 인물 소개: 한나 아렌트</a>
+    <p class="eyebrow">사조·개념 해설 · 아렌트가 배운 철학</p>
+    <h1>현상학과 실존철학</h1>
+    <p class="lead">아렌트는 하이데거와 후설, 야스퍼스의 강의실에서 철학을 시작했습니다. 20세기 전반 독일에서 가장 새로웠던 두 흐름이 무엇이었는지 살펴봅니다.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="duo">
+    <div class="ph">
+      <small>방법</small>
+      <b>현상학</b>
+      <p>이론과 선입견을 내려놓고, 사물이 우리에게 <b>나타나는 그대로</b>를 꼼꼼히 기술하려는 철학의 방법.</p>
+    </div>
+    <div class="ex">
+      <small>주제</small>
+      <b>실존철학</b>
+      <p>'인간 일반'이 아니라 지금 여기서 불안해하고 선택하며 살아가는 <b>구체적인 한 사람</b>의 삶을 묻는 철학.</p>
+    </div>
+  </div>
+
+  <nav>
+    <a href="#s1">① 등장 배경</a>
+    <a href="#s2">② 현상학</a>
+    <a href="#s3">③ 실존철학</a>
+    <a href="#s4">④ 두 흐름의 관계</a>
+    <a href="#s5">⑤ 계보</a>
+    <a href="#s6">⑥ 주요 철학자</a>
+    <a href="#s7">⑦ 아렌트와의 연결</a>
+    <a href="#s8">⑧ 유의할 점</a>
+    <a href="#s9">⑨ 문학과 영화</a>
+    <a href="#s10">⑩ 생각해 볼 질문</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="s1">
+    <h2><span class="num">1</span>왜 등장했는가</h2>
+    <p class="desc">두 흐름은 모두 19세기 말에서 20세기 초, "철학이 삶에서 멀어졌다"는 문제의식에서 나왔습니다.</p>
+    <div class="grid3">
+      <div class="card"><h3>과학의 성공</h3><p class="muted">자연과학이 눈부시게 발전하면서, 측정하고 계산할 수 있는 것만이 참된 지식이라는 생각이 퍼졌습니다. 인간의 의미와 가치는 설 자리를 잃어 갔습니다.</p></div>
+      <div class="card"><h3>거대한 체계에 대한 피로</h3><p class="muted">헤겔처럼 세계 전체를 하나의 체계로 설명하는 철학에서는, 고민하고 선택하는 '이 나'가 보이지 않는다는 반발이 일었습니다.</p></div>
+      <div class="card"><h3>전쟁과 불안</h3><p class="muted">두 차례 세계대전은 이성과 진보에 대한 믿음을 무너뜨렸습니다. 죽음, 불안, 무의미가 철학의 한복판으로 들어왔습니다.</p></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="s2">
+    <h2><span class="num">2</span>현상학 — "사태 자체로"</h2>
+    <p class="desc">독일 철학자 에드문트 후설이 20세기 초에 창시했습니다. '현상'은 우리 의식에 나타나는 것을 뜻합니다.</p>
+
+    <div class="idea">
+      <span class="say">출발점</span>
+      <h3>사태 자체로 돌아가라</h3>
+      <p>무언가를 설명하기 전에, 그것이 우리에게 어떻게 경험되는지부터 있는 그대로 살펴보자는 구호입니다. 이론으로 덮어쓰기 전의 생생한 경험이 모든 지식의 바탕이라고 봅니다.</p>
+      <p class="eg"><b>예</b> · 과학은 '한 시간'을 60분으로 똑같이 잽니다. 그러나 지루한 수업의 한 시간과 친구와 노는 한 시간은 전혀 다르게 경험됩니다. 현상학은 이 '경험된 시간'을 진지하게 다룹니다.</p>
+    </div>
+
+    <div class="idea">
+      <span class="say">핵심 개념 1</span>
+      <h3>지향성</h3>
+      <p>의식은 텅 빈 상자가 아니라 언제나 <b>무언가에 대한</b> 의식이라는 것. 보는 것은 무언가를 보는 것이고, 두려워하는 것은 무언가를 두려워하는 것입니다. 의식과 세계는 처음부터 이어져 있습니다.</p>
+    </div>
+
+    <div class="idea">
+      <span class="say">핵심 개념 2</span>
+      <h3>판단중지 (괄호 치기)</h3>
+      <p>"이것은 원래 이런 것"이라는 당연한 믿음을 잠시 괄호 안에 넣어 두는 것. 그 믿음이 틀렸다는 것이 아니라, 판단을 미루고 경험 자체를 들여다보기 위한 절차입니다.</p>
+      <p class="eg"><b>예</b> · 늘 다니던 등굣길을 "처음 온 사람의 눈"으로 다시 보는 연습과 비슷합니다.</p>
+    </div>
+
+    <div class="idea">
+      <span class="say">핵심 개념 3</span>
+      <h3>생활세계</h3>
+      <p>과학 이론 이전에 우리가 이미 몸담고 살아가는 일상의 세계. 후설은 말년에, 과학이 자기가 생활세계에서 나왔다는 사실을 잊으면서 학문의 위기가 왔다고 진단했습니다.</p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="s3">
+    <h2><span class="num">3</span>실존철학 — "이 나는 어떻게 살 것인가"</h2>
+    <p class="desc">'실존'은 그냥 있는 것이 아니라, 자기 삶을 문제 삼으며 스스로 살아 내는 인간의 존재 방식을 가리킵니다. 19세기의 키르케고르와 니체가 뿌리입니다.</p>
+
+    <div class="idea ex">
+      <span class="say">핵심 주제 1</span>
+      <h3>단독자 — 대신 살아 줄 수 없는 나</h3>
+      <p>인간은 '학생', '국민' 같은 범주의 한 사례가 아니라, 누구도 대신할 수 없는 한 사람입니다. 키르케고르는 군중 속에 숨지 않고 홀로 결단하는 사람을 '단독자'라 불렀습니다.</p>
+    </div>
+
+    <div class="idea ex">
+      <span class="say">핵심 주제 2</span>
+      <h3>불안</h3>
+      <p>불안은 특정한 대상을 무서워하는 공포와 다릅니다. 무엇이든 될 수 있고 무엇이든 선택할 수 있다는 자유 앞에서 느끼는 어지러움입니다. 실존철학은 불안을 병이 아니라 자유의 증거로 봅니다.</p>
+      <p class="eg"><b>예</b> · 진로를 정해야 할 때의 막막함. 정답이 없어서 불안하지만, 그래서 내 선택이 됩니다.</p>
+    </div>
+
+    <div class="idea ex">
+      <span class="say">핵심 주제 3</span>
+      <h3>자유와 책임</h3>
+      <p>인간에게는 미리 정해진 본질이나 설계도가 없고, 선택을 통해 자신을 만들어 갑니다. 그러므로 자기 삶에 대한 책임을 다른 누구에게도, 환경에도 완전히 떠넘길 수 없습니다.</p>
+    </div>
+
+    <div class="idea ex">
+      <span class="say">핵심 주제 4</span>
+      <h3>죽음과 한계상황</h3>
+      <p>죽음, 고통, 죄책처럼 피할 수 없는 벽 앞에서 사람은 비로소 "나는 어떻게 살고 있는가"를 묻게 됩니다. 유한하다는 사실이 삶을 진지하게 만듭니다.</p>
+    </div>
+
+    <div class="idea ex">
+      <span class="say">핵심 주제 5</span>
+      <h3>본래성 — 남들처럼 살기와 나로 살기</h3>
+      <p>우리는 대부분 "남들이 그렇게 하니까" 삽니다. 실존철학은 이런 익명의 삶에서 벗어나 자기 자신으로 사는 가능성을 묻습니다.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="s4">
+    <h2><span class="num">4</span>두 흐름은 어떤 관계인가</h2>
+    <p class="desc">하나는 방법이고 하나는 주제여서, 둘은 경쟁하기보다 결합했습니다. 하이데거와 사르트르는 현상학의 방법으로 실존의 문제를 다루었습니다.</p>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th></th><th>현상학</th><th>실존철학</th></tr></thead>
+        <tbody>
+          <tr><th>성격</th><td>철학하는 방법</td><td>철학의 주제와 태도</td></tr>
+          <tr><th>중심 질문</th><td>사물은 우리에게 어떻게 나타나는가?</td><td>나는 어떻게 존재하며 어떻게 살 것인가?</td></tr>
+          <tr><th>출발</th><td>후설, 1900년 무렵</td><td>키르케고르·니체(19세기) → 1920년대 독일</td></tr>
+          <tr><th>열쇳말</th><td>지향성, 판단중지, 생활세계</td><td>실존, 불안, 자유, 죽음, 본래성</td></tr>
+          <tr><th>맞선 상대</th><td>모든 것을 자연과학으로 설명하려는 태도</td><td>개인을 지워 버리는 거대한 체계와 대중 사회</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>실존철학과 실존주의</b> — 1920~30년대 독일에서 하이데거와 야스퍼스가 펼친 것을 보통 '실존철학'이라 하고, 2차 대전 뒤 프랑스에서 사르트르를 중심으로 문학과 대중문화로까지 번진 흐름을 '실존주의'라 부릅니다. 뿌리는 같지만 시기와 분위기가 다릅니다.</div>
+  </section>
+
+  <!-- 5 -->
+  <section id="s5">
+    <h2><span class="num">5</span>계보 한눈에 보기</h2>
+    <div class="card tree">
+      <p class="tierlabel">19세기 · 뿌리</p>
+      <div class="tier t2">
+        <div class="node root"><b>키르케고르</b><span>단독자, 불안</span></div>
+        <div class="node root"><b>니체</b><span>기존 가치의 붕괴, 스스로 가치 세우기</span></div>
+      </div>
+      <div class="down">영향</div>
+      <p class="tierlabel">20세기 초 · 독일</p>
+      <div class="tier t3">
+        <div class="node ph"><b>후설</b><span>현상학 창시</span></div>
+        <div class="node ph ex"><b>하이데거</b><span>후설의 제자. 현상학으로 존재를 물음</span></div>
+        <div class="node ex"><b>야스퍼스</b><span>한계상황, 실존적 소통</span></div>
+      </div>
+      <div class="down">전후 프랑스로</div>
+      <p class="tierlabel">1940년대 이후 · 프랑스</p>
+      <div class="tier t4">
+        <div class="node ex"><b>사르트르</b><span>실존주의</span></div>
+        <div class="node ex"><b>보부아르</b><span>실존주의와 여성</span></div>
+        <div class="node ph"><b>메를로퐁티</b><span>몸의 현상학</span></div>
+        <div class="node ex"><b>카뮈</b><span>부조리와 반항</span></div>
+      </div>
+      <div class="down">같은 스승 밑에서, 다른 길로</div>
+      <div class="tier">
+        <div class="node ar"><b>한나 아렌트</b><span>하이데거·후설·야스퍼스에게 배운 뒤 정치사상으로 나아감</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="s6">
+    <h2><span class="num">6</span>주요 철학자</h2>
+
+    <div class="ph-card">
+      <div class="ph-head"><b>에드문트 후설</b><span class="yrs">1859–1938</span><span class="tag ph">현상학</span></div>
+      <p class="one">현상학의 창시자</p>
+      <p class="muted">수학자로 출발해 철학을 "엄밀한 학문"으로 세우려 했습니다. 의식의 지향성을 밝히고, 판단중지를 통해 경험을 기술하는 방법을 내놓았습니다. 유대인이어서 나치 시기에 대학에서 배제되었습니다.</p>
+      <p class="work">대표작 · 《논리 연구》, 《유럽 학문의 위기와 초월론적 현상학》</p>
+    </div>
+
+    <div class="ph-card">
+      <div class="ph-head"><b>마르틴 하이데거</b><span class="yrs">1889–1976</span><span class="tag ph">현상학</span><span class="tag ex">실존철학</span></div>
+      <p class="one">"존재한다는 것은 무슨 뜻인가"를 다시 물은 철학자</p>
+      <p class="muted">인간을 자기 존재를 문제 삼는 '현존재'로 규정하고, 세계 안에 던져져 살아가는 모습을 분석했습니다. 사람은 평소 "남들이 하는 대로" 살지만, 자신의 죽음을 직시할 때 고유한 삶을 살 수 있다고 보았습니다. 1933년 나치당에 입당한 일은 지금도 그의 철학과 함께 논쟁됩니다.</p>
+      <p class="work">대표작 · 《존재와 시간》(1927)</p>
+    </div>
+
+    <div class="ph-card">
+      <div class="ph-head"><b>카를 야스퍼스</b><span class="yrs">1883–1969</span><span class="tag ex">실존철학</span></div>
+      <p class="one">한계상황과 소통의 철학자</p>
+      <p class="muted">정신과 의사에서 철학자가 되었습니다. 죽음·고통·죄책 같은 한계상황에서 인간이 참된 자기에 눈뜬다고 보았고, 그 자기는 다른 사람과의 진실한 소통 속에서 이루어진다고 강조했습니다. 전후에는 독일인의 책임을 물었습니다.</p>
+      <p class="work">대표작 · 《철학》, 《죄의 문제》</p>
+    </div>
+
+    <div class="ph-card">
+      <div class="ph-head"><b>장 폴 사르트르</b><span class="yrs">1905–1980</span><span class="tag ex">실존주의</span></div>
+      <p class="one">"실존은 본질에 앞선다"</p>
+      <p class="muted">인간은 먼저 세상에 존재하고, 그 뒤에 선택을 통해 자기가 무엇인지를 만들어 간다는 뜻입니다. 인간은 "자유롭도록 선고받았다"고 했고, 자유를 외면하고 핑계 뒤에 숨는 태도를 '자기기만'이라 불렀습니다. 소설과 희곡으로도 사상을 펼쳤습니다.</p>
+      <p class="work">대표작 · 《존재와 무》, 《실존주의는 휴머니즘이다》, 소설 《구토》</p>
+    </div>
+
+    <div class="grid3">
+      <div class="card"><h3>시몬 드 보부아르 <span class="muted" style="font-weight:400;font-size:14px">1908–1986</span></h3><p class="muted">실존주의의 관점으로 여성의 처지를 분석했습니다. "여성은 태어나는 것이 아니라 만들어진다"는 문장으로 알려진 《제2의 성》을 썼습니다.</p></div>
+      <div class="card"><h3>모리스 메를로퐁티 <span class="muted" style="font-weight:400;font-size:14px">1908–1961</span></h3><p class="muted">우리는 머리로만이 아니라 몸으로 세계를 만난다는 점을 밝혔습니다. 《지각의 현상학》이 대표작입니다.</p></div>
+      <div class="card"><h3>알베르 카뮈 <span class="muted" style="font-weight:400;font-size:14px">1913–1960</span></h3><p class="muted">의미를 찾는 인간과 대답 없는 세계 사이의 어긋남을 '부조리'라 불렀습니다. 본인은 실존주의자로 불리기를 거부했습니다. 《시지프 신화》, 《이방인》.</p></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section id="s7">
+    <h2><span class="num">7</span>아렌트는 무엇을 이어받고 무엇을 뒤집었는가</h2>
+    <p class="desc">아렌트는 스승들의 방법을 배웠지만, 결론은 정반대 방향으로 끌고 갔습니다. 《인간의 조건》을 읽을 때 이 대비를 떠올려 봅니다.</p>
+
+    <div class="link-row">
+      <div class="from"><small>현상학의 방법</small>이론을 앞세우지 않고, 나타나는 그대로를 기술한다</div>
+      <div class="arrow">→</div>
+      <div class="to"><small>아렌트 · 이어받음</small>노동·작업·행위를 각각 어떻게 경험되는지에 따라 구분한다. 공적 영역을 "나타남의 공간"이라 부른다</div>
+    </div>
+    <div class="link-row">
+      <div class="from"><small>하이데거</small>인간은 죽음을 향해 있는 존재다</div>
+      <div class="arrow">↔</div>
+      <div class="to"><small>아렌트 · 뒤집음</small><b>탄생성</b> — 인간은 태어난 존재이며, 새로 시작할 수 있다</div>
+    </div>
+    <div class="link-row">
+      <div class="from"><small>하이데거</small>남들 속에 섞인 삶은 비본래적이다. 참된 자기는 홀로 설 때 드러난다</div>
+      <div class="arrow">↔</div>
+      <div class="to"><small>아렌트 · 뒤집음</small><b>다원성</b> — 내가 누구인지는 다른 사람들 앞에서 말하고 행동할 때 드러난다</div>
+    </div>
+    <div class="link-row">
+      <div class="from"><small>야스퍼스</small>참된 자기는 진실한 소통 속에서 이루어진다</div>
+      <div class="arrow">→</div>
+      <div class="to"><small>아렌트 · 이어받음</small>말과 대화를 정치의 핵심으로 본다</div>
+    </div>
+    <div class="link-row">
+      <div class="from"><small>실존철학 전반</small>개인의 내면과 결단에 집중한다</div>
+      <div class="arrow">↔</div>
+      <div class="to"><small>아렌트 · 뒤집음</small>사람들 <b>사이</b>에 있는 공동의 세계에 집중한다. 그래서 스스로를 철학자가 아닌 정치이론가라 불렀다</div>
+    </div>
+
+    <div class="note">사유를 가르친 스승 하이데거가 나치에 협력했다는 사실은, 아렌트가 "철학자의 홀로 하는 사유만으로는 부족하다"고 생각하게 된 배경으로 자주 이야기됩니다. 자세한 관계는 <a class="in" href="영화_한나_아렌트_활동자료.html#s3">영화 자료의 인물 편</a>을 참고합니다.</div>
+  </section>
+
+  <!-- 8 -->
+  <section id="s8">
+    <h2><span class="num">8</span>유의할 점</h2>
+    <div class="grid2">
+      <div class="card"><h3>"실존주의 = 우울하고 허무한 철학"은 오해</h3><p class="muted">불안과 죽음을 말하지만, 결론은 "그러니 네 삶은 네가 만든다"는 자유와 책임의 강조입니다.</p></div>
+      <div class="card"><h3>이름표를 거부한 사람이 많다</h3><p class="muted">하이데거도 카뮈도 실존주의자로 불리기를 원하지 않았습니다. 사조의 이름은 뒤에 붙인 편의상의 분류임을 기억합니다.</p></div>
+      <div class="card"><h3>받은 비판</h3><p class="muted">개인의 내면에 치우쳐 사회 구조와 역사를 보지 못한다는 비판, 말이 모호하다는 비판을 받았습니다. 1960년대 프랑스에서는 구조주의가 "인간의 자유로운 선택"이라는 전제를 정면으로 문제 삼았습니다.</p></div>
+      <div class="card"><h3>여기서는 아주 간단히 줄였다</h3><p class="muted">각 철학자의 사상은 훨씬 복잡하고 시기에 따라 달라집니다. 이 자료는 아렌트를 읽기 위한 지도 정도로 씁니다.</p></div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section id="s9">
+    <h2><span class="num">9</span>문학과 영화로 만나기</h2>
+    <p class="desc">실존철학은 처음부터 문학과 가까웠습니다. 사르트르와 카뮈는 철학자이면서 소설가였고, 추상적인 개념보다 한 사람의 이야기로 생각을 전했습니다. 각 작품 아래에 이 해설의 어느 개념과 이어지는지 적었습니다.</p>
+
+    <h3 style="margin-bottom:10px">철학자가 직접 쓴 문학</h3>
+    <div class="grid2">
+      <div class="card work">
+        <span class="kind">소설 · 1942</span>
+        <h3>이방인</h3>
+        <p class="who">알베르 카뮈</p>
+        <p class="muted">어머니의 장례식에서도 울지 않는 남자 뫼르소. 사회가 기대하는 감정을 연기하지 않는 그는 살인 재판에서 행위보다 태도 때문에 단죄됩니다. 짧고 문장이 쉬워 첫 작품으로 알맞습니다.</p>
+        <p class="tie">이어지는 개념: 부조리, 본래성</p>
+      </div>
+      <div class="card work">
+        <span class="kind">소설 · 1947</span>
+        <h3>페스트</h3>
+        <p class="who">알베르 카뮈</p>
+        <p class="muted">전염병으로 봉쇄된 도시에서 사람들이 각자 다른 방식으로 재앙에 맞섭니다. 이유 없는 고통 앞에서 그래도 할 일을 하는 사람들의 이야기입니다.</p>
+        <p class="tie">이어지는 개념: 한계상황, 부조리에 맞서는 연대</p>
+      </div>
+      <div class="card work">
+        <span class="kind">소설 · 1938</span>
+        <h3>구토</h3>
+        <p class="who">장 폴 사르트르</p>
+        <p class="muted">주인공은 어느 날 사물들이 아무 이유 없이 그냥 '있다'는 사실에 메스꺼움을 느낍니다. 일기 형식이며 다소 어렵지만, 현상학적 묘사가 소설이 된 대표적인 예입니다.</p>
+        <p class="tie">이어지는 개념: 사태 자체로, 존재의 우연성</p>
+      </div>
+      <div class="card work">
+        <span class="kind">희곡 · 1944</span>
+        <h3>닫힌 방</h3>
+        <p class="who">장 폴 사르트르</p>
+        <p class="muted">죽은 뒤 한 방에 갇힌 세 사람이 서로의 시선에서 벗어나지 못합니다. "타인은 지옥이다"라는 대사로 유명합니다. 한 시간 남짓이면 읽을 수 있어 낭독 활동에 좋습니다.</p>
+        <p class="tie">이어지는 개념: 자기기만, 타인의 시선과 자유</p>
+      </div>
+    </div>
+
+    <h3 style="margin:26px 0 10px">실존의 문제를 다룬 문학</h3>
+    <div class="grid2">
+      <div class="card work">
+        <span class="kind">소설 · 1915</span>
+        <h3>변신</h3>
+        <p class="who">프란츠 카프카</p>
+        <p class="muted">어느 아침 벌레로 변한 외판원 그레고르. 가족을 부양하는 '쓸모'가 사라지자 그는 무엇으로 남는가. 실존문학의 선구로 꼽힙니다.</p>
+        <p class="tie">이어지는 개념: 단독자, 역할과 존재</p>
+      </div>
+      <div class="card work">
+        <span class="kind">희곡 · 1953</span>
+        <h3>고도를 기다리며</h3>
+        <p class="who">사뮈엘 베케트</p>
+        <p class="muted">두 사람이 오지 않는 '고도'를 끝없이 기다립니다. 줄거리가 거의 없다는 것 자체가 내용인 부조리극의 대표작입니다.</p>
+        <p class="tie">이어지는 개념: 부조리, 의미 없는 세계에서의 기다림</p>
+      </div>
+      <div class="card work">
+        <span class="kind">소설 · 1864</span>
+        <h3>지하로부터의 수기</h3>
+        <p class="who">표도르 도스토옙스키</p>
+        <p class="muted">합리적인 이익 계산대로만 살기를 거부하는 한 남자의 독백. 실존철학이 등장하기 전에 그 문제를 먼저 그려 낸 작품으로 평가됩니다.</p>
+        <p class="tie">이어지는 개념: 자유, 체계에 대한 반발</p>
+      </div>
+      <div class="card work">
+        <span class="kind">소설 · 1919</span>
+        <h3>데미안</h3>
+        <p class="who">헤르만 헤세</p>
+        <p class="muted">주어진 세계의 가치를 깨고 자기 자신에게 이르려는 소년의 성장기. 엄밀히 실존주의 작품은 아니지만 니체의 영향이 짙고, 같은 질문을 또래의 눈높이에서 다룹니다.</p>
+        <p class="tie">이어지는 개념: 본래성, 스스로 가치 세우기</p>
+      </div>
+    </div>
+    <div class="note"><b>한국 문학에서는</b> — 6·25 전쟁 뒤 1950년대에 실존주의의 영향을 받은 작품들이 나왔습니다. 장용학의 〈요한 시집〉, 손창섭의 〈비 오는 날〉 등이 전후 문학의 예로 자주 언급됩니다.</div>
+
+    <h3 style="margin:26px 0 10px">영화</h3>
+    <div class="grid2">
+      <div class="card work">
+        <span class="kind">영화 · 1952 · 일본</span>
+        <h3>이키루 (살다)</h3>
+        <p class="who">감독 구로사와 아키라</p>
+        <p class="muted">30년간 서류에 도장만 찍던 공무원이 시한부 선고를 받고 처음으로 "나는 살아 있었는가"를 묻습니다. 2022년 영국에서 〈리빙: 어떤 인생〉으로 다시 만들어졌습니다.</p>
+        <p class="tie">이어지는 개념: 죽음 앞의 본래성, 한계상황</p>
+      </div>
+      <div class="card work">
+        <span class="kind">영화 · 1998 · 미국</span>
+        <h3>트루먼 쇼</h3>
+        <p class="who">감독 피터 위어</p>
+        <p class="muted">자기 삶 전체가 방송 세트였음을 알게 된 남자가 안전한 가짜 세계와 알 수 없는 진짜 세계 사이에서 선택합니다.</p>
+        <p class="tie">이어지는 개념: 남들이 정해 준 삶과 나의 삶, 자유와 불안</p>
+      </div>
+      <div class="card work">
+        <span class="kind">영화 · 1993 · 미국</span>
+        <h3>사랑의 블랙홀</h3>
+        <p class="who">감독 해럴드 래미스</p>
+        <p class="muted">같은 하루가 끝없이 반복되는 남자. 절망과 방종을 거쳐, 반복 속에서 스스로 의미를 만들어 갑니다. 카뮈의 시지프 이야기와 나란히 놓고 보기 좋은 코미디입니다.</p>
+        <p class="tie">이어지는 개념: 부조리, 의미는 주어지는가 만드는가</p>
+      </div>
+      <div class="card work">
+        <span class="kind">애니메이션 · 2020 · 미국</span>
+        <h3>소울</h3>
+        <p class="who">감독 피트 닥터</p>
+        <p class="muted">"사람은 정해진 목적을 갖고 태어나는가"를 묻는 픽사 애니메이션. 영화의 결론은 "실존은 본질에 앞선다"는 말과 겹쳐 읽을 수 있습니다.</p>
+        <p class="tie">이어지는 개념: 실존은 본질에 앞선다</p>
+      </div>
+      <div class="card work">
+        <span class="kind">영화 · 2016 · 미국</span>
+        <h3>패터슨</h3>
+        <p class="who">감독 짐 자무시</p>
+        <p class="muted">버스 운전사이자 시인인 남자의 일주일. 사건은 거의 없고, 매일 비슷한 일상이 얼마나 다르게 경험되는지를 천천히 보여 줍니다.</p>
+        <p class="tie">이어지는 개념: 생활세계, 경험을 있는 그대로 주의 깊게 보기</p>
+      </div>
+      <div class="card work">
+        <span class="kind">영화 · 1957 · 스웨덴</span>
+        <h3>제7의 봉인</h3>
+        <p class="who">감독 잉마르 베리만</p>
+        <p class="muted">흑사병이 도는 중세, 전쟁에서 돌아온 기사가 죽음과 체스를 두며 삶의 의미를 묻습니다. 느리고 상징이 많아 일부 장면만 발췌해 보는 것도 방법입니다.</p>
+        <p class="tie">이어지는 개념: 죽음, 신의 침묵과 의미</p>
+      </div>
+    </div>
+    <div class="note"><b>활용 제안</b> — 처음 접하는 학생에게는 〈소울〉이나 〈트루먼 쇼〉로 질문을 열고, 《이방인》 또는 《닫힌 방》을 함께 읽는 순서가 무난합니다. 현상학은 작품으로 옮겨진 예가 드물어 〈패터슨〉과 《구토》 정도를 골랐습니다. 영화는 관람 등급을 확인한 뒤 활용합니다.</div>
+  </section>
+
+  <!-- 10 -->
+  <section id="s10">
+    <h2><span class="num">10</span>생각해 볼 질문</h2>
+    <ol class="qs">
+      <li>"당연하다"고 여겨 온 것을 하나 골라 괄호 안에 넣어 보자. 그것을 처음 보는 사람처럼 설명한다면?</li>
+      <li>불안은 없애야 할 감정일까, 자유롭다는 증거일까?</li>
+      <li>"남들이 다 그렇게 하니까" 했던 선택과 "내가 정해서" 한 선택을 하나씩 떠올려 보자. 무엇이 달랐는가?</li>
+      <li>참된 나는 혼자 있을 때 드러날까, 다른 사람들 앞에서 드러날까? 하이데거와 아렌트 중 누구 쪽에 더 가까운가?</li>
+      <li>환경과 조건이 사람을 만든다는 생각과, 사람이 선택으로 자신을 만든다는 생각 중 어느 쪽이 더 설득력 있는가?</li>
+    </ol>
+  </section>
+
+  <footer>
+    <a href="현대철학_독서동아리_활동안내.html">동아리 활동 안내</a>·<a href="인물_한나_아렌트.html">인물 소개: 한나 아렌트</a>·<a href="해설_전체주의.html">해설: 전체주의</a>
+  </footer>
+</div>
+
+<div class="ph-portal-return"><a href="./index.html">← 철학 자료 포털로 돌아가기</a></div>
+</body>
+</html>
+

@@ -1,0 +1,12 @@
+.ph-portal-bar{background:#fff;border-bottom:1px solid #dce3ec;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1b2733}
+.ph-portal-bar .ph-portal-inner{max-width:960px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ph-portal-bar a{display:inline-flex;align-items:center;gap:9px;color:#005daa;text-decoration:none;font-size:13px;line-height:1.6;font-weight:700}
+.ph-portal-bar a:hover{text-decoration:underline;text-underline-offset:4px}
+.ph-portal-bar a:focus-visible,.ph-portal-return a:focus-visible{outline:3px solid #007dc3;outline-offset:5px}
+.ph-portal-bar .ph-portal-mark{width:10px;height:10px;background:#005daa;transform:rotate(45deg);flex:none}
+.ph-portal-bar .ph-portal-list{font-size:12px;font-weight:500;white-space:nowrap;color:#5c6b7a}
+.ph-portal-return{max-width:920px;margin:0 auto 36px;padding:24px 20px;text-align:center;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.ph-portal-return a{display:inline-block;padding:10px 20px;border:1px solid #c7d9ea;border-radius:9px;background:#fff;color:#005daa;font-size:14px;font-weight:700;text-decoration:none}
+.ph-portal-return a:hover{background:#edf5fc}
+@media(max-width:420px){.ph-portal-bar .ph-portal-inner{gap:12px;padding:12px 16px}.ph-portal-bar a{font-size:12px}.ph-portal-bar .ph-portal-list{font-size:11px}}
+@media print{.ph-portal-bar,.ph-portal-return{display:none!important}}

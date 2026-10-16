@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인물 소개 · 한나 아렌트</title>
+<style>
+  :root {
+    --ink: #1c2230; --sub: #5a6375; --line: #e2e5ec; --bg: #f6f5f1; --card: #ffffff;
+    --accent: #2f4b8f; --accent-soft: #e8edf8;
+    --plum: #4a3558; --plum-soft: #f1ebf5;
+    --gold: #9a7417; --gold-soft: #f8f1dc;
+    --red: #a8402f; --red-soft: #fbece8;
+    --green: #2f7a5b; --green-soft: #e6f3ed;
+    --todo: #fff6cf;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 16px; line-height: 1.7; word-break: keep-all;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header { background: var(--plum); color: #fff; padding: 28px 20px 48px; }
+  header .inner { max-width: 920px; margin: 0 auto; }
+  .back { display: inline-block; color: #fff; opacity: .8; font-size: 14px; text-decoration: none; margin: 0 16px 26px 0; }
+  .back:hover { opacity: 1; text-decoration: underline; }
+  .eyebrow { font-size: 14px; letter-spacing: .08em; opacity: .8; margin: 0 0 8px; }
+  h1 { font-size: clamp(30px, 5.5vw, 46px); line-height: 1.2; margin: 0 0 4px; }
+  .by { margin: 0 0 18px; opacity: .85; }
+  .bigq { display: inline-block; background: rgba(255,255,255,.12);  padding: 10px 18px; border-radius: 0 10px 10px 0; font-size: 18px; font-weight: 600; margin: 0; }
+  .bigq small { display: block; font-size: 13px; font-weight: 400; opacity: .8; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: -24px 0 0; position: relative; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; text-align: center; }
+  .stat b { display: block; font-size: 20px; color: var(--plum); line-height: 1.3; }
+  .stat span { font-size: 13.5px; color: var(--sub); }
+
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 8px; }
+  nav a { font-size: 14px; text-decoration: none; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; }
+  nav a:hover { background: var(--accent); color: #fff; }
+
+  section { margin-top: 56px; }
+  h2 { font-size: 23px; margin: 0 0 6px; display: flex; align-items: center; gap: 12px; }
+  h2 .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--plum); color: #fff; font-size: 16px; display: grid; place-items: center; }
+  .desc { color: var(--sub); margin: 0 0 20px; }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; }
+  ul { margin: 6px 0 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .muted { color: var(--sub); }
+  a.in { color: var(--accent); font-weight: 700; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card > :last-child { margin-bottom: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  table.info { width: 100%; border-collapse: collapse; }
+  table.info th, table.info td { padding: 10px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.info tr:last-child th, table.info tr:last-child td { border-bottom: 0; }
+  table.info th { width: 130px; color: var(--sub); font-weight: 600; }
+
+  /* 생애 */
+  .era { display: grid; grid-template-columns: 150px 1fr; gap: 0; margin-bottom: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .era .side { padding: 18px 16px; color: #fff; }
+  .era.e1 .side { background: #7d8aa8; } .era.e2 .side { background: var(--accent); }
+  .era.e3 .side { background: var(--red); } .era.e4 .side { background: var(--plum); }
+  .era .side .yr { font-size: 14px; opacity: .9; }
+  .era .side b { display: block; font-size: 18px; line-height: 1.35; margin-top: 2px; }
+  .era .side .place { font-size: 13px; opacity: .85; margin-top: 8px; display: block; }
+  .era .main { padding: 16px 20px; }
+  .era .main ul { margin: 0; }
+  .era .main .pt { margin: 10px 0 0; padding: 8px 12px; background: #f4f5f8; border-radius: 8px; font-size: 14.5px; color: var(--sub); }
+  .era .main .pt b { color: var(--ink); }
+
+  /* 특징 */
+  .trait { border-top: 6px solid var(--plum); }
+  .trait .say { font-size: 17.5px; font-weight: 700; color: var(--plum); margin-bottom: 8px; line-height: 1.5; }
+
+  /* 저작 */
+  .tbl-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  table.books { width: 100%; border-collapse: collapse; min-width: 600px; }
+  table.books th, table.books td { padding: 11px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  table.books tr:last-child td { border-bottom: 0; }
+  table.books thead th { background: #f1f2f5; font-size: 14px; color: var(--sub); }
+  table.books td:first-child { white-space: nowrap; font-weight: 700; color: var(--plum); }
+  table.books tr.ours td { background: var(--gold-soft); }
+  .pill { display: inline-block; font-size: 12px; font-weight: 700; background: var(--gold); color: #fff; border-radius: 999px; padding: 0 9px; margin-left: 6px; vertical-align: 2px; }
+
+  /* 개념 */
+  .terms { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .term { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .term b { display: block; font-size: 16.5px; }
+  .term .src { font-size: 12.5px; color: var(--gold); font-weight: 700; }
+  .term span.d { color: var(--sub); font-size: 15px; }
+
+  /* 사람들 */
+  .inf { display: grid; grid-template-columns: 130px 1fr; gap: 6px 16px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .inf:last-child { border-bottom: 0; }
+  .inf b { color: var(--plum); }
+  .inf span { color: var(--sub); }
+
+  /* 문제 */
+  .quiz { counter-reset: q; display: grid; gap: 10px; }
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 0; counter-increment: q; }
+  summary { cursor: pointer; padding: 14px 16px 14px 54px; position: relative; list-style: none; font-weight: 600; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: counter(q); position: absolute; left: 14px; top: 13px; width: 26px; height: 26px; border-radius: 50%; background: var(--plum); color: #fff; font-size: 14px; display: grid; place-items: center; }
+  summary::after { content: "정답 보기"; float: right; font-size: 13px; font-weight: 400; color: var(--accent); margin-left: 12px; }
+  details[open] summary::after { content: "접기"; }
+  details .ans { margin: 0 16px 14px 54px; padding: 10px 14px; background: var(--green-soft); border-radius: 8px; }
+  .essay { counter-reset: e; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .essay li { counter-increment: e; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 14px 62px; position: relative; margin: 0; }
+  .essay li::before { content: "서술 " counter(e); position: absolute; left: 14px; top: 14px; font-size: 13px; font-weight: 800; color: var(--gold); }
+
+  .links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .links a { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line);  border-radius: 12px; padding: 14px 16px; }
+  .links a b { display: block; }
+  .links a span { color: var(--sub); font-size: 14.5px; }
+  .links a:hover { border-color: var(--accent); }
+
+  .note { margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: var(--todo); font-size: 14.5px; }
+  footer { margin-top: 64px; text-align: center; color: var(--sub); font-size: 13.5px; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .grid2, .grid3, .terms, .links { grid-template-columns: 1fr; }
+    .era { grid-template-columns: 1fr; }
+    .inf { grid-template-columns: 1fr; gap: 0; }
+    table.info th { width: 92px; }
+  }
+  @media print {
+    body { background: #fff; font-size: 12.5px; }
+    nav, .back { display: none; }
+    header { padding: 24px 20px 28px; }
+    .stats { margin-top: 12px; }
+    section { margin-top: 26px; }
+    .card, .era, .term, details, .essay li { break-inside: avoid; }
+    summary::after { content: ""; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+<link rel="stylesheet" href="document-nav.css">
+</head>
+<body>
+<div class="ph-portal-bar" role="navigation" aria-label="철학 자료 포털">
+  <div class="ph-portal-inner">
+    <a href="./index.html"><span class="ph-portal-mark" aria-hidden="true"></span>현대철학 독서동아리</a>
+    <a class="ph-portal-list" href="./index.html#resources">자료 목록 ↗</a>
+  </div>
+</div>
+
+<header>
+  <div class="inner">
+    <a class="back" href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내</a>
+    <a class="back" href="01_인간의_조건_활동계획.html">← 《인간의 조건》 활동 계획</a>
+    <p class="eyebrow">인물 소개 · 학습 자료</p>
+    <h1>한나 아렌트</h1>
+    <p class="by">Hannah Arendt · 1906–1975 · 정치사상가</p>
+    <p class="bigq">"나는 이해하고 싶습니다."<small>1964년 텔레비전 대담에서 자신의 일을 설명하며 한 말</small></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><b>독일 → 미국</b><span>유대인 망명 사상가</span></div>
+    <div class="stat"><b>18년</b><span>망명 뒤 시민권을 얻기까지</span></div>
+    <div class="stat"><b>정치이론가</b><span>스스로 고른 이름</span></div>
+    <div class="stat"><b>다원성</b><span>사상의 중심 단어</span></div>
+  </div>
+
+  <nav>
+    <a href="#s1">① 한눈에</a>
+    <a href="#s2">② 생애</a>
+    <a href="#s3">③ 어떤 사상가인가</a>
+    <a href="#s4">④ 주요 저작</a>
+    <a href="#s5">⑤ 핵심 개념</a>
+    <a href="#s6">⑥ 영향을 준 사람들</a>
+    <a href="#s7">⑦ 오늘의 아렌트</a>
+    <a href="#s8">⑧ 확인 문제</a>
+    <a href="#s9">⑨ 이어서 보기</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="s1">
+    <h2><span class="num">1</span>한눈에 보기</h2>
+    <div class="card">
+      <table class="info">
+        <tr><th>출생·사망</th><td>1906년 독일 하노버 근교 출생, 1975년 미국 뉴욕에서 사망</td></tr>
+        <tr><th>성장</th><td>칸트의 도시 쾨니히스베르크에서 자람</td></tr>
+        <tr><th>배움</th><td>하이데거, 후설, 야스퍼스에게 철학을 배움. 박사 논문 주제는 아우구스티누스의 사랑 개념</td></tr>
+        <tr><th>전환점</th><td>1933년 나치 집권으로 독일을 떠남. 프랑스를 거쳐 1941년 미국에 정착</td></tr>
+        <tr><th>대표작</th><td>《전체주의의 기원》, 《인간의 조건》, 《예루살렘의 아이히만》</td></tr>
+        <tr><th>평생의 질문</th><td>전체주의는 어떻게 가능했는가? 사람들이 함께 자유롭게 사는 일은 어떻게 가능한가?</td></tr>
+        <tr><th>한 문장 요약</th><td><b>20세기의 가장 어두운 사건을 직접 겪고, 그것을 끝까지 이해하려 한 사상가</b></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="s2">
+    <h2><span class="num">2</span>생애 — 네 시기</h2>
+    <p class="desc">아렌트의 사상은 책상 위에서만 나온 것이 아닙니다. 각 시기의 경험이 어떤 생각으로 이어졌는지 함께 봅니다.</p>
+
+    <div class="era e1">
+      <div class="side"><span class="yr">1906–1924</span><b>책을 읽는 소녀</b><span class="place">쾨니히스베르크</span></div>
+      <div class="main">
+        <ul>
+          <li>교양 있는 유대인 가정에서 태어남. 일곱 살에 아버지를 여읨</li>
+          <li>어머니는 "유대인이라고 모욕당하면 스스로 맞서라"고 가르침</li>
+          <li>십 대에 이미 칸트를 읽었고, 교사와 충돌해 학교를 그만둔 뒤 독학으로 대학 입학 자격을 얻음</li>
+        </ul>
+        <p class="pt"><b>남은 것</b> — 권위에 기대지 않고 스스로 판단하려는 태도</p>
+      </div>
+    </div>
+
+    <div class="era e2">
+      <div class="side"><span class="yr">1924–1933</span><b>철학을 배우다</b><span class="place">마르부르크 · 하이델베르크 · 베를린</span></div>
+      <div class="main">
+        <ul>
+          <li>마르부르크에서 하이데거에게, 이어 하이델베르크에서 야스퍼스에게 배움</li>
+          <li>1929년 박사 논문 《아우구스티누스의 사랑 개념》 출간</li>
+          <li>반유대주의가 거세지자, 18~19세기 유대인 여성 라헬 파른하겐의 전기를 쓰며 "유대인으로 산다는 것"을 탐구함</li>
+        </ul>
+        <p class="pt"><b>남은 것</b> — 사유하는 훈련, 그리고 철학만으로는 시대를 설명할 수 없다는 자각</p>
+      </div>
+    </div>
+
+    <div class="era e3">
+      <div class="side"><span class="yr">1933–1951</span><b>망명자, 무국적자</b><span class="place">파리 · 수용소 · 뉴욕</span></div>
+      <div class="main">
+        <ul>
+          <li>1933년 비밀경찰에 체포되어 8일간 구금된 뒤 독일을 탈출</li>
+          <li>파리에서 유대인 청소년의 팔레스타인 이주를 돕는 일을 함. 철학자 발터 벤야민과 가까이 지냄</li>
+          <li>1937년 독일 국적 박탈. 1940년 프랑스 남부 수용소에 억류되었다가 탈출</li>
+          <li>1941년 뉴욕 도착. 영어를 새로 배우며 신문에 글을 쓰고 출판사에서 일함</li>
+          <li>1951년 《전체주의의 기원》 출간, 미국 시민권 취득</li>
+        </ul>
+        <p class="pt"><b>남은 것</b> — 어느 나라에도 속하지 않은 사람은 아무 권리도 보장받지 못한다는 체험. "권리를 가질 권리"라는 생각의 뿌리</p>
+      </div>
+    </div>
+
+    <div class="era e4">
+      <div class="side"><span class="yr">1951–1975</span><b>뉴욕의 사상가</b><span class="place">뉴욕 · 시카고</span></div>
+      <div class="main">
+        <ul>
+          <li>1958년 《인간의 조건》으로 자신의 정치사상을 본격적으로 펼침</li>
+          <li>1961년 아이히만 재판 참관, 1963년 《예루살렘의 아이히만》으로 큰 논쟁의 중심에 섬</li>
+          <li>시카고 대학과 뉴욕 뉴스쿨에서 가르침</li>
+          <li>말년에는 사유·의지·판단을 다루는 《정신의 삶》을 집필하다가 1975년 심장마비로 세상을 떠남. 마지막 부분인 '판단'은 쓰지 못함</li>
+        </ul>
+        <p class="pt"><b>남은 것</b> — "생각하지 않음"이 악과 어떻게 이어지는가라는 마지막 질문</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="s3">
+    <h2><span class="num">3</span>아렌트는 어떤 사상가인가</h2>
+    <p class="desc">아렌트를 다른 철학자들과 구별해 주는 세 가지 태도입니다.</p>
+    <div class="grid3">
+      <div class="card trait">
+        <p class="say">"나는 철학자가 아닙니다"</p>
+        <p class="muted">아렌트는 자신을 정치이론가라고 불렀습니다. 전통 철학은 홀로 생각하는 '인간'을 다루지만, 정치는 함께 사는 '사람들'의 일이라고 보았기 때문입니다.</p>
+      </div>
+      <div class="card trait">
+        <p class="say">"나는 이해하고 싶습니다"</p>
+        <p class="muted">남을 설득하거나 세상을 바꾸는 것보다 먼저, 일어난 일을 있는 그대로 이해하는 것이 자신의 일이라고 했습니다. 이해는 용서도 변명도 아닙니다.</p>
+      </div>
+      <div class="card trait">
+        <p class="say">난간 없이 생각하기</p>
+        <p class="muted">전체주의 이후에는 기댈 전통도 기준도 무너졌다고 보았습니다. 그래서 계단 난간을 붙잡지 않고 걷듯, 기존의 틀에 의지하지 않고 스스로 생각해야 한다고 했습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="s4">
+    <h2><span class="num">4</span>주요 저작</h2>
+    <div class="tbl-wrap">
+      <table class="books">
+        <thead><tr><th>연도</th><th>책</th><th>무엇을 묻는가</th></tr></thead>
+        <tbody>
+          <tr><td>1951</td><td><b>전체주의의 기원</b></td><td>나치즘과 스탈린주의는 어떻게 가능했는가? 이전의 폭정과 무엇이 다른가?</td></tr>
+          <tr><td>1958</td><td><b>인간의 조건</b></td><td>우리는 지금 무엇을 하고 있는가? 노동·작업·행위는 어떻게 다른가?</td></tr>
+          <tr><td>1961</td><td><b>과거와 미래 사이</b></td><td>전통이 끊어진 시대에 권위, 자유, 교육, 진리는 무엇인가?</td></tr>
+          <tr><td>1963</td><td><b>예루살렘의 아이히만</b></td><td>평범한 사람은 어떻게 거대한 악에 가담하는가?</td></tr>
+          <tr><td>1963</td><td><b>혁명론</b></td><td>미국 혁명과 프랑스 혁명은 왜 다른 길을 갔는가? 자유를 세운다는 것은 무엇인가?</td></tr>
+          <tr><td>1968</td><td><b>어두운 시대의 사람들</b></td><td>암울한 시대에도 빛을 비춘 사람들은 어떻게 살았는가?</td></tr>
+          <tr><td>1970</td><td><b>폭력론</b></td><td>권력과 폭력은 같은 것인가?</td></tr>
+          <tr><td>1978</td><td><b>정신의 삶</b> (유고)</td><td>생각한다는 것, 의지한다는 것, 판단한다는 것은 무엇인가?</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="s5">
+    <h2><span class="num">5</span>핵심 개념 여덟 가지</h2>
+    <p class="desc">아렌트를 읽을 때 반복해서 만나는 말들입니다. 각 개념이 주로 나오는 책을 함께 적었습니다.</p>
+    <div class="terms">
+      <div class="term"><span class="src">인간의 조건</span><b>다원성</b><span class="d">세상에는 '인간'이 아니라 서로 다른 '사람들'이 산다는 사실. 아렌트 정치사상의 출발점.</span></div>
+      <div class="term"><span class="src">인간의 조건</span><b>탄생성</b><span class="d">사람은 태어남으로써 세상에 새로 등장하며, 그래서 전에 없던 것을 시작할 수 있다는 것.</span></div>
+      <div class="term"><span class="src">인간의 조건</span><b>행위와 공적 영역</b><span class="d">사람들 앞에서 말과 행동으로 자신이 누구인지 드러내는 일, 그리고 그 일이 벌어지는 공동의 공간.</span></div>
+      <div class="term"><span class="src">전체주의의 기원</span><b>권리를 가질 권리</b><span class="d">모든 권리에 앞서, 권리를 보장해 줄 정치 공동체에 속할 권리가 있어야 한다는 생각.</span></div>
+      <div class="term"><span class="src">예루살렘의 아이히만</span><b>악의 평범성</b><span class="d">거대한 악이 악마 같은 인물이 아니라 생각 없이 맡은 일을 하는 평범한 사람에 의해 저질러질 수 있다는 것.</span></div>
+      <div class="term"><span class="src">정신의 삶</span><b>사유</b><span class="d">지식을 쌓는 일이 아니라, 나와 나 자신이 나누는 소리 없는 대화. 자기 행동을 스스로에게 묻는 일.</span></div>
+      <div class="term"><span class="src">폭력론</span><b>권력과 폭력</b><span class="d">권력은 사람들이 함께 뜻을 모아 행동할 때 생기고, 폭력은 도구로 강제하는 것. 아렌트는 둘을 반대되는 것으로 봄.</span></div>
+      <div class="term"><span class="src">아렌트 사상 전체</span><b>세계사랑</b><span class="d">끔찍한 일을 겪고도 이 세계를 떠나지 않고 돌보려는 태도. 아렌트가 《인간의 조건》에 붙이고 싶어 했던 제목이기도 함.</span></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="s6">
+    <h2><span class="num">6</span>영향을 준 사람들</h2>
+    <div class="card">
+      <div class="inf"><b>아우구스티누스</b><span>박사 논문의 주제. "시작이 있기 위해 인간이 창조되었다"는 그의 문장에서 탄생성 개념을 끌어냄</span></div>
+      <div class="inf"><b>칸트</b><span>어릴 때부터 읽은 철학자. 말년에는 그의 판단력 이론에서 정치적 판단의 실마리를 찾음</span></div>
+      <div class="inf"><b>하이데거</b><span>사유하는 법을 가르친 스승. 그러나 그가 나치에 협력했다는 사실은 아렌트에게 평생의 물음이 됨</span></div>
+      <div class="inf"><b>야스퍼스</b><span>박사 논문 지도교수이자 평생의 벗. 소통과 책임을 중시하는 태도를 배움</span></div>
+      <div class="inf"><b>발터 벤야민</b><span>파리 망명 시절의 친구. 그가 망명길에 세상을 떠난 뒤 아렌트는 그의 원고를 미국으로 가져가 세상에 알림</span></div>
+      <div class="inf"><b>하인리히 블뤼허</b><span>남편. 철학에 머물던 아렌트를 정치와 역사로 이끈 대화 상대</span></div>
+    </div>
+    <div class="note">하이데거와 야스퍼스의 철학은 <a class="in" href="해설_현상학과_실존철학.html">해설: 현상학과 실존철학</a>에서 다룹니다. 주변 인물과의 실제 관계는<a class="in" href="영화_한나_아렌트_활동자료.html#s3">영화 〈한나 아렌트〉 자료의 인물 편</a>에 더 자세히 있습니다.</div>
+  </section>
+
+  <!-- 7 -->
+  <section id="s7">
+    <h2><span class="num">7</span>오늘, 왜 다시 아렌트인가</h2>
+    <div class="grid2">
+      <div class="card"><h3>난민과 무국적자</h3><p class="muted">나라를 잃은 사람의 권리는 누가 지켜 주는가. 아렌트가 자기 경험에서 던진 질문은 오늘의 난민 문제에서 그대로 되풀이됩니다.</p></div>
+      <div class="card"><h3>사실과 거짓</h3><p class="muted">아렌트는 정치에서 사실이 의견처럼 취급되고 조직적인 거짓말이 퍼질 때 무엇이 무너지는지를 다루었습니다. 가짜 뉴스 시대에 자주 다시 읽힙니다.</p></div>
+      <div class="card"><h3>자동화와 일의 의미</h3><p class="muted">기계가 노동을 대신하는 사회에서 인간에게 남는 활동은 무엇인가. 《인간의 조건》 서두의 물음은 AI 시대에 더 날카로워졌습니다.</p></div>
+      <div class="card"><h3>생각 없는 가담</h3><p class="muted">"시키는 대로 했다", "다들 그렇게 한다"는 말 뒤에 숨는 일은 조직과 온라인 공간 어디서나 일어납니다.</p></div>
+    </div>
+    <div class="note"><b>균형 있게 보기</b> — 아렌트는 비판도 많이 받았습니다. 공적 영역과 사적 영역을 지나치게 나눈다는 지적, 빈곤 같은 '사회 문제'를 정치에서 밀어낸다는 지적, 아이히만에 대한 판단이 틀렸다는 지적 등이 있습니다. 읽으면서 동의하지 않는 지점을 찾아보는 것도 좋은 공부입니다.</div>
+  </section>
+
+  <!-- 8 -->
+  <section id="s8">
+    <h2><span class="num">8</span>확인 문제</h2>
+    <p class="desc">스스로 답해 본 뒤 문제를 눌러 정답을 확인합니다.</p>
+    <div class="quiz">
+      <details><summary>아렌트는 자신을 '철학자' 대신 무엇이라고 불렀는가?</summary><p class="ans">정치이론가. 철학은 홀로 있는 '인간'을, 정치는 함께 사는 '사람들'을 다룬다고 보았기 때문이다.</p></details>
+      <details><summary>아렌트가 1933년 독일을 떠난 까닭은?</summary><p class="ans">나치가 집권했고, 유대인인 그는 반유대주의 자료를 모으다 비밀경찰에 체포되었다가 풀려난 뒤 탈출했다.</p></details>
+      <details><summary>"권리를 가질 권리"는 아렌트의 어떤 경험에서 나왔는가?</summary><p class="ans">국적을 빼앗기고 오랫동안 무국적자로 산 경험. 어느 공동체에도 속하지 못하면 인권도 보장받지 못한다는 것을 겪었다.</p></details>
+      <details><summary>《인간의 조건》에서 구분하는 세 가지 활동은?</summary><p class="ans">노동, 작업, 행위.</p></details>
+      <details><summary>'악의 평범성'은 "악은 별것 아니다"라는 뜻인가?</summary><p class="ans">아니다. 악을 저지른 사람이 특별한 괴물이 아니라 생각 없이 일한 평범한 사람이었다는 뜻이며, 아렌트는 그 점이 더 두렵다고 보았다.</p></details>
+      <details><summary>아렌트가 말한 '사유'는 무엇인가?</summary><p class="ans">나와 나 자신이 나누는 소리 없는 대화. 지식의 양이 아니라 자기 행동을 스스로 되묻는 일이다.</p></details>
+      <details><summary>아렌트는 권력과 폭력을 어떻게 구별했는가?</summary><p class="ans">권력은 사람들이 함께 행동할 때 생겨나는 것이고, 폭력은 도구를 써서 강제하는 것이다. 폭력이 커지는 곳에서는 오히려 권력이 사라지고 있다고 보았다.</p></details>
+      <details><summary>'난간 없이 생각하기'란 어떤 태도인가?</summary><p class="ans">전통이나 기존의 기준에 기대지 않고 스스로 판단하는 태도.</p></details>
+    </div>
+
+    <h3 style="margin:26px 0 10px">서술형 — 한 가지를 골라 써 보기</h3>
+    <ol class="essay">
+      <li>아렌트의 생애에서 그의 사상에 가장 큰 영향을 준 사건을 하나 고르고, 그것이 어떤 개념으로 이어졌는지 설명해 보자.</li>
+      <li>"이해하는 것은 용서하는 것이 아니다"라는 말에 동의하는가? 내 경험에서 예를 들어 보자.</li>
+      <li>여덟 가지 개념 중 지금 우리 사회를 설명하는 데 가장 쓸모 있다고 생각하는 것을 고르고 이유를 써 보자.</li>
+    </ol>
+  </section>
+
+  <!-- 9 -->
+  <section id="s9">
+    <h2><span class="num">9</span>이어서 보기</h2>
+    <div class="links">
+      <a href="해설_전체주의.html"><b>해설: 전체주의 →</b><span>아렌트 사상의 출발점이 된 경험</span></a>
+      <a href="영화_한나_아렌트_활동자료.html"><b>영화 〈한나 아렌트〉 →</b><span>아이히만 재판과 논쟁, 주변 인물</span></a>
+      <a href="01_인간의_조건_활동계획.html"><b>《인간의 조건》 5주 계획 →</b><span>첫 번째 책 읽기</span></a>
+    </div>
+  </section>
+
+  <footer><a href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내로 돌아가기</a></footer>
+</div>
+
+<div class="ph-portal-return"><a href="./index.html">← 철학 자료 포털로 돌아가기</a></div>
+</body>
+</html>
+

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 인간의 조건 · 활동 계획</title>
+<style>
+  :root {
+    --ink: #1c2230; --sub: #5a6375; --line: #e2e5ec; --bg: #f6f5f1; --card: #ffffff;
+    --accent: #2f4b8f; --accent-soft: #e8edf8;
+    --labor: #b4572e; --labor-soft: #fbeee6;
+    --work: #8a6d1f; --work-soft: #f8f1dc;
+    --action: #2f7a5b; --action-soft: #e6f3ed;
+    --todo: #fff6cf;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 16px; line-height: 1.7; word-break: keep-all;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header { background: var(--accent); color: #fff; padding: 28px 20px 48px; }
+  header .inner { max-width: 920px; margin: 0 auto; }
+  .back { display: inline-block; color: #fff; opacity: .85; font-size: 14px; text-decoration: none; margin-bottom: 26px; }
+  .back:hover { opacity: 1; text-decoration: underline; }
+  .eyebrow { font-size: 14px; letter-spacing: .08em; opacity: .8; margin: 0 0 8px; }
+  h1 { font-size: clamp(30px, 5.5vw, 46px); line-height: 1.2; margin: 0 0 6px; }
+  .by { margin: 0 0 18px; opacity: .85; }
+  .bigq {
+    display: inline-block; background: rgba(255,255,255,.14); 
+    padding: 10px 18px; border-radius: 0 10px 10px 0; font-size: 18px; font-weight: 600; margin: 0;
+  }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: -24px 0 0; position: relative; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; text-align: center; }
+  .stat b { display: block; font-size: 21px; color: var(--accent); line-height: 1.3; }
+  .stat span { font-size: 13.5px; color: var(--sub); }
+
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 8px; }
+  nav a { font-size: 14px; text-decoration: none; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; }
+  nav a:hover { background: var(--accent); color: #fff; }
+
+  section { margin-top: 56px; }
+  h2 { font-size: 23px; margin: 0 0 6px; display: flex; align-items: center; gap: 12px; }
+  h2 .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 16px; display: grid; place-items: center; }
+  .desc { color: var(--sub); margin: 0 0 20px; }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; }
+  ul { margin: 6px 0 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card > :last-child { margin-bottom: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .muted { color: var(--sub); }
+
+  /* 세 가지 활동 */
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .act { border-radius: 14px; padding: 20px; border: 1px solid var(--line); background: var(--card); border-top-width: 6px; }
+  .act.l { border-top-color: var(--labor); } .act.w { border-top-color: var(--work); } .act.a { border-top-color: var(--action); }
+  .act .en { font-size: 13px; letter-spacing: .06em; font-weight: 700; }
+  .act.l .en { color: var(--labor); } .act.w .en { color: var(--work); } .act.a .en { color: var(--action); }
+  .act h3 { font-size: 24px; margin: 0 0 10px; }
+  .act dl { margin: 0; }
+  .act dt { font-size: 12.5px; color: var(--sub); font-weight: 700; margin-top: 10px; }
+  .act dd { margin: 0; }
+  .act .ex { margin-top: 12px; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; }
+  .act.l .ex { background: var(--labor-soft); } .act.w .ex { background: var(--work-soft); } .act.a .ex { background: var(--action-soft); }
+
+  /* 용어 */
+  .terms { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .term { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .term b { display: block; }
+  .term span { color: var(--sub); font-size: 15px; }
+
+  /* 주차별 */
+  .week { background: var(--card); border: 1px solid var(--line);  border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; }
+  .week-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 4px; }
+  .week-head .w { font-weight: 800; color: var(--accent); font-size: 15px; }
+  .week.final .w { color: var(--labor); }
+  .week-head h3 { font-size: 20px; margin: 0; }
+  .read { display: inline-block; font-size: 14px; background: var(--accent-soft); color: var(--accent); font-weight: 600; padding: 2px 12px; border-radius: 999px; margin: 4px 0 12px; }
+  .week.final .read { background: var(--labor-soft); color: var(--labor); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .cols h4 { font-size: 13px; color: var(--sub); margin: 8px 0 2px; letter-spacing: .03em; }
+  .cols ul { margin: 0; }
+  .do { margin-top: 14px; padding: 10px 14px; background: var(--action-soft); border-radius: 10px; }
+  .do b { color: var(--action); }
+
+  .note { margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: var(--todo); font-size: 14.5px; }
+  footer { margin-top: 64px; text-align: center; color: var(--sub); font-size: 13.5px; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .grid2, .trio, .terms, .cols { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body { background: #fff; font-size: 12.5px; }
+    nav, .back { display: none; }
+    header { padding: 24px 20px 28px; }
+    .stats { margin-top: 12px; }
+    section { margin-top: 26px; }
+    .week, .act, .card, .term { break-inside: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+<link rel="stylesheet" href="document-nav.css">
+</head>
+<body>
+<div class="ph-portal-bar" role="navigation" aria-label="철학 자료 포털">
+  <div class="ph-portal-inner">
+    <a href="./index.html"><span class="ph-portal-mark" aria-hidden="true"></span>현대철학 독서동아리</a>
+    <a class="ph-portal-list" href="./index.html#resources">자료 목록 ↗</a>
+  </div>
+</div>
+
+<header>
+  <div class="inner">
+    <a class="back" href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내로 돌아가기</a>
+    <p class="eyebrow">첫 번째 책 · 2026학년도 2학기</p>
+    <h1>인간의 조건</h1>
+    <p class="by">한나 아렌트 · 1958</p>
+    <p class="bigq">우리는 지금 무엇을 하고 있는가?</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><b>5주</b><span>10월 중순 ~ 11월 중순</span></div>
+    <div class="stat"><b>서론 + 6장</b><span>책의 구성</span></div>
+    <div class="stat"><b>발제 4회</b><span>1~4주차</span></div>
+    <div class="stat"><b>난이도 ★★★</b><span>천천히, 함께 읽기</span></div>
+  </div>
+
+  <nav>
+    <a href="#s1">① 왜 이 책인가</a>
+    <a href="#s2">② 저자와 배경</a>
+    <a href="#s3">③ 핵심 구도</a>
+    <a href="#s4">④ 미리 알아둘 말</a>
+    <a href="#s5">⑤ 5주 계획</a>
+    <a href="#s6">⑥ 읽기 요령</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="s1">
+    <h2><span class="num">1</span>왜 이 책으로 시작하는가</h2>
+    <div class="card">
+      <p>아렌트는 이 책의 목적을 아주 단순하게 밝힙니다. <b>"우리가 하고 있는 일을 생각해 보자"</b>는 것입니다. 먹고살기 위해 일하고, 무언가를 만들고, 사람들 사이에서 말하고 행동하는 것. 이 세 가지가 어떻게 다르고, 현대 사회에서 그 균형이 어떻게 무너졌는지를 묻습니다.</p>
+      <p>쉬운 책은 아닙니다. 하지만 "공부는 무엇을 위한 것인가", "나는 사람들 앞에서 어떤 사람으로 드러나는가", "기계가 일을 대신하면 인간에게는 무엇이 남는가" 같은 질문을 붙들 수 있는 튼튼한 틀을 줍니다. 이 틀은 이후에 읽을 책들을 이해하는 데에도 계속 쓰입니다.</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="s2">
+    <h2><span class="num">2</span>저자와 시대 배경</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>한나 아렌트 (1906–1975)</h3>
+        <ul>
+          <li>독일에서 태어난 유대인 정치사상가</li>
+          <li>1933년 나치 집권 후 독일을 떠나 프랑스를 거쳐 1941년 미국으로 망명</li>
+          <li>1951년 《전체주의의 기원》으로 이름을 알림</li>
+          <li>1958년 《인간의 조건》 출간</li>
+          <li>스스로를 "철학자"보다 "정치이론가"로 불렀음</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>책이 쓰인 시대</h3>
+        <ul>
+          <li>책은 1957년 인류 최초의 인공위성 발사 이야기로 시작합니다. 인간이 지구를 벗어날 수 있게 된 사건입니다.</li>
+          <li>공장 자동화가 본격화되며 "노동에서의 해방"이 이야기되던 때입니다.</li>
+          <li>전체주의와 세계대전을 겪은 직후, 사람들이 함께 말하고 행동하는 공간이 어떻게 파괴되는지를 목격한 뒤에 쓴 책입니다.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note"><b>먼저 읽어 두기</b> — <a href="인물_한나_아렌트.html" style="color:var(--accent);font-weight:700">인물 소개: 한나 아렌트 →</a> &nbsp;아렌트의 사상은 전체주의 경험에서 출발합니다.<a href="해설_전체주의.html" style="color:var(--accent);font-weight:700">해설: 전체주의 →</a></div>
+  </section>
+
+  <!-- 3 -->
+  <section id="s3">
+    <h2><span class="num">3</span>핵심 구도: 인간의 세 가지 활동</h2>
+    <p class="desc">이 세 가지 구분만 잡으면 책 전체의 지도가 보입니다. 아렌트는 이 셋을 묶어 "활동적 삶"이라 부릅니다.</p>
+    <div class="trio">
+      <div class="act l">
+        <span class="en">LABOR</span>
+        <h3>노동</h3>
+        <dl>
+          <dt>무엇인가</dt><dd>살아남기 위해 반복하는 활동</dd>
+          <dt>대응하는 조건</dt><dd>생명 — 우리는 몸을 가진 생명체다</dd>
+          <dt>특징</dt><dd>결과물이 곧 소비되어 사라지고, 끝없이 되풀이된다</dd>
+          <dt>인간의 모습</dt><dd>노동하는 동물</dd>
+        </dl>
+        <div class="ex">예: 밥 짓기, 청소, 생계를 위한 일</div>
+      </div>
+      <div class="act w">
+        <span class="en">WORK</span>
+        <h3>작업</h3>
+        <dl>
+          <dt>무엇인가</dt><dd>오래 남는 사물을 만드는 활동</dd>
+          <dt>대응하는 조건</dt><dd>세계성 — 우리는 사물로 이루어진 세계 안에 산다</dd>
+          <dt>특징</dt><dd>시작과 끝이 분명하고, 만든 것이 만든 사람보다 오래 남는다</dd>
+          <dt>인간의 모습</dt><dd>제작하는 인간 (호모 파베르)</dd>
+        </dl>
+        <div class="ex">예: 집 짓기, 책상 만들기, 예술 작품</div>
+      </div>
+      <div class="act a">
+        <span class="en">ACTION</span>
+        <h3>행위</h3>
+        <dl>
+          <dt>무엇인가</dt><dd>사람들 사이에서 말과 행동으로 자신을 드러내는 활동</dd>
+          <dt>대응하는 조건</dt><dd>다원성 — 우리는 서로 다른 여럿이 함께 산다</dd>
+          <dt>특징</dt><dd>결과를 예측할 수 없고 되돌릴 수 없으며, 새로운 것을 시작한다</dd>
+          <dt>인간의 모습</dt><dd>"누구"인지 드러나는 존재</dd>
+        </dl>
+        <div class="ex">예: 토론, 발언, 약속, 용서, 함께 무언가를 시작하기</div>
+      </div>
+    </div>
+    <div class="note"><b>아렌트의 진단</b> — 근대 이후 사회는 노동을 가장 높은 자리에 올려놓았고, 그 결과 작업과 행위의 자리가 좁아졌다. 책의 뒷부분은 이 과정이 어떻게 일어났는지를 추적합니다. 이 진단에 동의할지는 5주 동안 각자 판단해 봅니다.</div>
+  </section>
+
+  <!-- 4 -->
+  <section id="s4">
+    <h2><span class="num">4</span>미리 알아둘 말</h2>
+    <p class="desc">낯선 용어에서 막히지 않도록, 읽기 전에 한 번 훑어봅니다.</p>
+    <div class="terms">
+      <div class="term"><b>활동적 삶 / 관조적 삶</b><span>몸으로 움직이며 사는 삶과, 고요히 진리를 바라보는 삶. 전통 철학은 뒤쪽을 더 높이 쳤고, 아렌트는 앞쪽을 다시 들여다봅니다.</span></div>
+      <div class="term"><b>공적 영역 / 사적 영역</b><span>모두에게 보이고 들리는 공동의 공간과, 가정처럼 생계와 필요를 해결하는 공간.</span></div>
+      <div class="term"><b>사회적인 것</b><span>원래 가정 안에 있던 생계·경제 문제가 공동체 전체의 최대 관심사가 된 상태. 공적인 것도 사적인 것도 아닌 근대의 새 영역.</span></div>
+      <div class="term"><b>다원성</b><span>인간은 하나의 '인간'이 아니라 서로 다른 '사람들'로 존재한다는 사실. 행위와 정치의 전제.</span></div>
+      <div class="term"><b>탄생성</b><span>사람은 태어남으로써 세상에 새로 등장하고, 그래서 무언가를 새로 시작할 수 있다는 것.</span></div>
+      <div class="term"><b>용서와 약속</b><span>되돌릴 수 없는 과거에는 용서로, 예측할 수 없는 미래에는 약속으로 대응한다는 아렌트의 답.</span></div>
+      <div class="term"><b>세계 소외</b><span>인간이 함께 사는 공동의 세계에서 멀어지고, 자기 자신 안으로 움츠러드는 근대의 경향.</span></div>
+      <div class="term"><b>노동하는 동물의 승리</b><span>삶 전체가 생계와 소비의 순환으로 채워진 상태를 가리키는, 책 마지막 부분의 표현.</span></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="s5">
+    <h2><span class="num">5</span>5주 활동 계획</h2>
+    <p class="desc">매주 90분. 열기 10분 → 발제 20분 → 질문과 토의 35분 → 소감 공유 20분 → 닫기 5분.</p>
+
+    <div class="week">
+      <div class="week-head"><span class="w">1주차</span><h3>지도 펼치기</h3></div>
+      <span class="read">읽을 분량: 서론 · 1장 인간의 조건 · 2장 공적 영역과 사적 영역</span>
+      <div class="cols">
+        <div>
+          <h4>이번 주에 잡을 것</h4>
+          <ul>
+            <li>활동적 삶의 세 가지 구분</li>
+            <li>공적 영역과 사적 영역의 차이</li>
+            <li>'사회적인 것'이 등장했다는 주장</li>
+          </ul>
+        </div>
+        <div>
+          <h4>함께 이야기할 질문</h4>
+          <ul>
+            <li>아렌트는 왜 인공위성 이야기로 책을 시작했을까?</li>
+            <li>학교는 공적 영역일까, 사적 영역일까, 아니면 '사회'일까?</li>
+            <li>남에게 보이지 않아야 지켜지는 것이 있을까?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="do"><b>활동</b> 어제 하루 24시간을 노동·작업·행위로 나누어 적어 보고, 어디에 넣기 어려운 시간이 있었는지 나눕니다.</div>
+    </div>
+
+    <div class="week">
+      <div class="week-head"><span class="w">2주차</span><h3>노동과 작업</h3></div>
+      <span class="read">읽을 분량: 3장 노동 · 4장 작업</span>
+      <div class="cols">
+        <div>
+          <h4>이번 주에 잡을 것</h4>
+          <ul>
+            <li>노동과 작업은 무엇이 다른가</li>
+            <li>소비되는 것과 오래 남는 것</li>
+            <li>수단과 목적으로만 생각할 때의 문제</li>
+          </ul>
+        </div>
+        <div>
+          <h4>함께 이야기할 질문</h4>
+          <ul>
+            <li>시험공부는 노동일까, 작업일까?</li>
+            <li>금방 쓰고 버리는 물건이 많아지면 '세계'는 어떻게 될까?</li>
+            <li>"그게 무슨 쓸모가 있어?"라는 질문에는 끝이 있을까?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="do"><b>활동</b> 내가 가진 것 중 "나보다 오래 남을 것" 하나를 골라, 그것이 왜 작업의 산물인지 설명합니다.</div>
+    </div>
+
+    <div class="week">
+      <div class="week-head"><span class="w">3주차</span><h3>행위 — 책의 중심</h3></div>
+      <span class="read">읽을 분량: 5장 행위</span>
+      <div class="cols">
+        <div>
+          <h4>이번 주에 잡을 것</h4>
+          <ul>
+            <li>말과 행위로 '누구'인지 드러난다는 것</li>
+            <li>행위의 예측 불가능성과 되돌릴 수 없음</li>
+            <li>용서와 약속의 힘</li>
+          </ul>
+        </div>
+        <div>
+          <h4>함께 이야기할 질문</h4>
+          <ul>
+            <li>'무엇'인 나(성적, 진로, 특기)와 '누구'인 나는 어떻게 다를까?</li>
+            <li>온라인 공간은 아렌트가 말한 공적 영역이 될 수 있을까?</li>
+            <li>용서할 수 없는 일도 있을까?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="do"><b>활동</b> 저자의 주장에 반론 세우기. "행위가 노동·작업보다 더 인간다운 활동이다"에 찬반으로 나누어 근거를 댑니다.</div>
+    </div>
+
+    <div class="week">
+      <div class="week-head"><span class="w">4주차</span><h3>근대, 그리고 우리</h3></div>
+      <span class="read">읽을 분량: 6장 활동적 삶과 근대 (선생님이 지정한 절 중심으로)</span>
+      <div class="cols">
+        <div>
+          <h4>이번 주에 잡을 것</h4>
+          <ul>
+            <li>세계 소외라는 진단</li>
+            <li>노동이 가장 높은 자리에 오른 과정</li>
+            <li>책 전체의 주장 한 문단으로 요약하기</li>
+          </ul>
+        </div>
+        <div>
+          <h4>함께 이야기할 질문</h4>
+          <ul>
+            <li>AI와 자동화가 일을 대신하면, 우리에게는 무엇이 남을까?</li>
+            <li>1958년의 진단은 지금 우리 사회에도 맞을까?</li>
+            <li>아렌트가 놓친 것은 무엇일까?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="do"><b>활동</b> 세 가지 구분으로 오늘의 문제 하나(입시, SNS, AI, 기후 등)를 분석해 보고, 최종 발표 주제를 정합니다.</div>
+    </div>
+
+    <div class="week final">
+      <div class="week-head"><span class="w">5주차</span><h3>최종 발표</h3></div>
+      <span class="read">준비: 발표문 A4 1쪽 내외</span>
+      <div class="cols">
+        <div>
+          <h4>발표에 담을 것</h4>
+          <ul>
+            <li><b>한 문장 결론</b> — "우리는 지금 무엇을 하고 있는가"에 대한 나의 답</li>
+            <li><b>근거</b> — 그 생각으로 이끈 책의 대목</li>
+            <li><b>변화</b> — 1주차의 하루 분류표를 지금 다시 본다면</li>
+            <li><b>남은 질문</b></li>
+          </ul>
+        </div>
+        <div>
+          <h4>진행</h4>
+          <ul>
+            <li>열기 5분</li>
+            <li>개인 발표와 질의응답 65분</li>
+            <li>종합 토의 15분</li>
+            <li>다음 책 안내 5분</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="note"><b>확정이 필요한 것</b> — 사용할 번역본과 주차별 쪽수, 2주차·4주차에 꼭 읽을 절의 범위, 발제 조 편성. 2주차는 분량이 가장 많으니 발제 조를 둘로 나누어 한 조가 한 장씩 맡는 방법도 있습니다.</div>
+  </section>
+
+  <!-- 6 -->
+  <section id="s6">
+    <h2><span class="num">6</span>어려운 책을 읽는 요령</h2>
+    <div class="grid2">
+      <div class="card"><h3>다 이해하려 하지 않는다</h3><p class="muted">모르는 문단은 표시만 하고 넘어갑니다. 모임에서 묻기 위해 표시하는 것입니다.</p></div>
+      <div class="card"><h3>세 가지 색으로 표시한다</h3><p class="muted">노동·작업·행위에 관한 문장을 서로 다른 색으로 표시하면 구조가 눈에 들어옵니다.</p></div>
+      <div class="card"><h3>내 예시를 붙인다</h3><p class="muted">추상적인 문장을 만나면 여백에 내 생활의 예를 하나 적습니다. 예가 떠오르지 않으면 그것이 질문입니다.</p></div>
+      <div class="card"><h3>고대 그리스 이야기에 겁먹지 않는다</h3><p class="muted">폴리스, 가정 같은 옛 사례가 자주 나옵니다. 역사 지식보다 "무엇과 무엇을 대비하는가"만 따라가면 됩니다.</p></div>
+    </div>
+  </section>
+
+  <footer><a href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내로 돌아가기</a></footer>
+</div>
+
+<div class="ph-portal-return"><a href="./index.html">← 철학 자료 포털로 돌아가기</a></div>
+</body>
+</html>
+

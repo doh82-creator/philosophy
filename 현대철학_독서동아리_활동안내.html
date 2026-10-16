@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>현대철학 독서 동아리 활동 안내</title>
+<style>
+  :root {
+    --ink: #1c2230;
+    --sub: #5a6375;
+    --line: #e2e5ec;
+    --bg: #f6f5f1;
+    --card: #ffffff;
+    --accent: #2f4b8f;
+    --accent-soft: #e8edf8;
+    --warm: #b4572e;
+    --warm-soft: #fbeee6;
+    --green: #2f7a5b;
+    --green-soft: #e6f3ed;
+    --todo: #fff6cf;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    word-break: keep-all;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* 표지 */
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 56px 20px 48px;
+  }
+  header .inner { max-width: 920px; margin: 0 auto; }
+  .eyebrow { font-size: 14px; letter-spacing: .08em; opacity: .8; margin: 0 0 10px; }
+  h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.25; margin: 0 0 14px; }
+  header p.lead { font-size: 17px; margin: 0; max-width: 620px; opacity: .92; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin: -28px 0 0; position: relative;
+  }
+  .stat {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 12px; text-align: center;
+  }
+  .stat b { display: block; font-size: 26px; color: var(--accent); line-height: 1.2; }
+  .stat span { font-size: 13.5px; color: var(--sub); }
+
+  /* 목차 */
+  nav {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 8px;
+  }
+  nav a {
+    font-size: 14px; text-decoration: none; color: var(--accent);
+    background: var(--accent-soft); padding: 6px 14px; border-radius: 999px;
+  }
+  nav a:hover { background: var(--accent); color: #fff; }
+
+  section { margin-top: 56px; }
+  h2 {
+    font-size: 23px; margin: 0 0 6px; display: flex; align-items: center; gap: 12px;
+  }
+  h2 .num {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 16px;
+    display: grid; place-items: center;
+  }
+  .desc { color: var(--sub); margin: 0 0 20px; }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  /* 기본 정보 표 */
+  table.info { width: 100%; border-collapse: collapse; }
+  table.info th, table.info td { padding: 11px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.info tr:last-child th, table.info tr:last-child td { border-bottom: 0; }
+  table.info th { width: 120px; color: var(--sub); font-weight: 600; white-space: nowrap; }
+  .todo { background: var(--todo); padding: 1px 8px; border-radius: 6px; font-size: 14.5px; }
+
+  /* 연간 로드맵 */
+  .road { display: grid; gap: 12px; }
+  .term-label {
+    font-size: 13.5px; font-weight: 700; color: var(--sub); letter-spacing: .04em;
+    margin: 14px 0 0; display: flex; align-items: center; gap: 10px;
+  }
+  .term-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .book {
+    display: grid; grid-template-columns: 64px 1fr; gap: 16px;
+    background: var(--card); border: 1px solid var(--line); 
+    border-radius: 14px; padding: 18px 20px;
+  }
+  .book .no {
+    font-size: 30px; font-weight: 800; color: var(--accent); line-height: 1; padding-top: 4px;
+  }
+  .book.vac .no { color: var(--warm); }
+  .book .when { font-size: 13.5px; color: var(--sub); margin: 0 0 2px; }
+  .book h3 { font-size: 19px; margin: 0; }
+  .book .author { font-size: 14.5px; color: var(--sub); margin: 0 0 8px; }
+  .book .q {
+    margin: 8px 0 10px; padding: 8px 14px; background: var(--accent-soft);
+    border-radius: 8px; font-weight: 600;
+  }
+  .book.vac .q { background: var(--warm-soft); }
+  .book p { margin: 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { font-size: 12.5px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--sub); background: #fafafa; }
+
+  /* 5주 사이클 */
+  .cycle { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .wk {
+    background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--accent);
+    border-radius: 12px; padding: 14px 12px;
+  }
+  .wk.final, .wk.intro { border-top-color: var(--warm); background: var(--warm-soft); }
+  .wk.intro .w { color: var(--warm); }
+  .book.tbd {  background: #fafafa; }
+  .book.tbd .no { color: #b3b8c3; }
+  .book.tbd h3 { color: var(--sub); font-weight: 600; }
+  .wk .w { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .wk.final .w { color: var(--warm); }
+  .wk b { display: block; font-size: 16px; margin: 2px 0 6px; }
+  .wk p { margin: 0; font-size: 14px; color: var(--sub); line-height: 1.55; }
+
+  /* 90분 시간표 */
+  .bar { display: flex; height: 46px; border-radius: 10px; overflow: hidden; margin: 6px 0 14px; }
+  .bar div { display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; }
+  .c1 { background: #7d8aa8; } .c2 { background: #2f4b8f; } .c3 { background: #2f7a5b; }
+  .c4 { background: #b4572e; } .c5 { background: #5a6375; }
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  ol.steps li { display: grid; grid-template-columns: 14px 64px 1fr; gap: 10px; align-items: baseline; }
+  ol.steps i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; transform: translateY(1px); }
+  ol.steps .min { font-weight: 700; white-space: nowrap; }
+  ol.steps span.t { color: var(--sub); }
+  ol.steps span.t b { color: var(--ink); }
+
+  /* 역할 */
+  .role .badge {
+    display: inline-block; font-size: 12.5px; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); margin-bottom: 8px;
+  }
+  ul { margin: 6px 0 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+  .card.green { background: var(--green-soft); border-color: #cfe5da; }
+  .card.warm { background: var(--warm-soft); border-color: #f1d9c9; }
+
+  .note {
+    margin-top: 14px; padding: 12px 16px; border-radius: 10px;
+    background: var(--todo); font-size: 14.5px;
+  }
+  footer { margin-top: 64px; text-align: center; color: var(--sub); font-size: 13.5px; }
+
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .cycle { grid-template-columns: 1fr; }
+    .book { grid-template-columns: 44px 1fr; gap: 10px; padding: 16px; }
+    table.info th { width: 84px; }
+  }
+  @media print {
+    body { background: #fff; font-size: 12.5px; }
+    header { padding: 28px 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .stats { margin-top: 12px; }
+    nav { display: none; }
+    section { margin-top: 28px; }
+    .book, .card, .wk, .cycle { break-inside: avoid; }
+    .bar div, .wk, .book .q, .card, .todo, .note { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+<link rel="stylesheet" href="document-nav.css">
+</head>
+<body>
+<div class="ph-portal-bar" role="navigation" aria-label="철학 자료 포털">
+  <div class="ph-portal-inner">
+    <a href="./index.html"><span class="ph-portal-mark" aria-hidden="true"></span>현대철학 독서동아리</a>
+    <a class="ph-portal-list" href="./index.html#resources">자료 목록 ↗</a>
+  </div>
+</div>
+
+<header>
+  <div class="inner">
+    <p class="eyebrow">2026학년도 2학기 – 2027학년도 1학기 · 고등학교 2학년</p>
+    <h1>현대철학 독서 동아리<br>활동 안내</h1>
+    <p class="lead">한 권을 5주 동안 천천히, 함께 읽습니다. 매주 발제를 듣고 생각을 나누며, 책을 마친 뒤에는 나만의 결론을 발표합니다.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><b>5권</b><span>학기 2권 + 방학 1권 + 학기 2권</span></div>
+    <div class="stat"><b>5주</b><span>책 한 권을 읽는 기간</span></div>
+    <div class="stat"><b>주 1회</b><span>정기 모임</span></div>
+    <div class="stat"><b>90분</b><span>한 번의 활동 시간</span></div>
+  </div>
+
+  <nav>
+    <a href="#s1">① 기본 정보</a>
+    <a href="#s2">② 읽을 책</a>
+    <a href="#s3">③ 5주 흐름</a>
+    <a href="#s4">④ 90분 진행</a>
+    <a href="#s5">⑤ 역할과 준비물</a>
+    <a href="#s6">⑥ 우리의 약속</a>
+    <a href="#s7">⑦ 남는 것</a>
+    <a href="#s8">⑧ 사조·개념 해설</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="s1">
+    <h2><span class="num">1</span>기본 정보</h2>
+    <div class="card">
+      <table class="info">
+        <tr><th>대상</th><td>고등학교 2학년 8명</td></tr>
+        <tr><th>주제</th><td>현대철학 — 전체주의, 자유주의, 공리주의, 실존주의, 구조주의 등</td></tr>
+        <tr><th>기간</th><td>2026학년도 2학기 → 겨울방학 → 2027학년도 1학기</td></tr>
+        <tr><th>모임</th><td>매주 금요일 ET 시간 (90분)</td></tr>
+        <tr><th>장소</th><td>S307</td></tr>
+        <tr><th>방식</th><td>1주차: 저자 소개 / 2~5주차: 발제 + 소감 공유 / 이후 별도 회차: 최종 발표</td></tr>
+        <tr><th>준비물</th><td>해당 도서, 필기구, 매주 "한 줄 질문" 1개</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="s2">
+    <h2><span class="num">2</span>읽을 책</h2>
+    <p class="desc">각 책에는 5주 동안 붙들고 갈 "큰 질문"이 하나씩 있습니다. 두 번째 책부터는 함께 정하며, 일정은 시험 기간 등 학사일정에 맞춰 조정합니다.</p>
+
+    <div class="road">
+      <p class="term-label">2026학년도 2학기</p>
+
+      <div class="book">
+        <div class="no">01</div>
+        <div>
+          <p class="when">10월 중순 ~ 11월 중순</p>
+          <h3>인간의 조건</h3>
+          <p class="author">한나 아렌트 · 1958</p>
+          <p class="q">우리는 지금 무엇을 하고 있는가?</p>
+          <p>인간의 활동을 노동·작업·행위로 나누어 살피는 책입니다. 쉽지 않지만, 이후의 책들을 읽는 데 계속 쓰일 튼튼한 틀을 줍니다.</p>
+          <div class="tags"><span class="tag">정치철학</span><span class="tag">노동·작업·행위</span><span class="tag">분량 많음</span><span class="tag">난이도 ★★★</span></div>
+          <p style="margin-top:12px"><a href="01_인간의_조건_활동계획.html" style="color:var(--accent);font-weight:700">이 책의 안내와 5주 활동 계획 보기 →</a></p>
+        </div>
+      </div>
+
+      <div class="book tbd">
+        <div class="no">02</div>
+        <div>
+          <p class="when">11월 하순 ~ 12월 하순 (기말고사 주간 휴회)</p>
+          <h3>미정</h3>
+        </div>
+      </div>
+
+      <p class="term-label">겨울방학</p>
+
+      <div class="book vac tbd">
+        <div class="no">03</div>
+        <div>
+          <p class="when">1월 초 ~ 2월 초</p>
+          <h3>미정</h3>
+        </div>
+      </div>
+
+      <p class="term-label">2027학년도 1학기</p>
+
+      <div class="book tbd">
+        <div class="no">04</div>
+        <div>
+          <p class="when">3월 중순 ~ 4월 중순</p>
+          <h3>미정</h3>
+        </div>
+      </div>
+
+      <div class="book tbd">
+        <div class="no">05</div>
+        <div>
+          <p class="when">5월 중순 ~ 6월 중순</p>
+          <h3>미정</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="s3">
+    <h2><span class="num">3</span>책 한 권, 5주의 흐름</h2>
+    <p class="desc">첫 주에 저자와 시대 배경을 익히고, 이후 네 주 동안 책을 네 부분으로 나눠 매주 한 부분씩 발제합니다.</p>
+    <div class="cycle">
+      <div class="wk intro"><span class="w">1주차</span><b>저자 소개</b><p>저자의 삶과 시대 배경<br>책의 큰 질문 확인</p></div>
+      <div class="wk"><span class="w">2주차</span><b>발제 1</b><p>1부 발제<br>소감 공유</p></div>
+      <div class="wk"><span class="w">3주차</span><b>발제 2</b><p>2부 발제<br>소감 공유</p></div>
+      <div class="wk"><span class="w">4주차</span><b>발제 3</b><p>3부 발제<br>소감 공유</p></div>
+      <div class="wk"><span class="w">5주차</span><b>발제 4</b><p>4부 발제<br>소감 공유</p></div>
+    </div>
+    <div class="note">5주를 마친 뒤에는 <b>별도 회차로 최종 발표</b>를 합니다. 매주 모임 전까지 해당 분량을 읽고 <b>한 줄 질문</b>을 준비합니다. 발제 조는 모임 전날까지 발제문을 공유합니다.</div>
+  </section>
+
+  <!-- 4 -->
+  <section id="s4">
+    <h2><span class="num">4</span>90분은 이렇게 씁니다</h2>
+    <p class="desc">듣는 시간보다 말하는 시간이 더 깁니다.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>2~5주차 · 발제와 소감 공유</h3>
+        <div class="bar" aria-hidden="true">
+          <div class="c1" style="flex:10">10</div>
+          <div class="c2" style="flex:20">20</div>
+          <div class="c3" style="flex:35">35</div>
+          <div class="c4" style="flex:20">20</div>
+          <div class="c5" style="flex:5">5</div>
+        </div>
+        <ol class="steps">
+          <li><i class="c1"></i><span class="min">10분</span><span class="t"><b>열기</b> — 지난주 돌아보기, 이번 주 읽은 느낌 한마디</span></li>
+          <li><i class="c2"></i><span class="min">20분</span><span class="t"><b>발제</b> — 발제 조가 내용 요약과 논제 제시</span></li>
+          <li><i class="c3"></i><span class="min">35분</span><span class="t"><b>질문과 토의</b> — 한 줄 질문과 발제 논제로 이야기 나누기</span></li>
+          <li><i class="c4"></i><span class="min">20분</span><span class="t"><b>소감 공유</b> — 돌아가며 각자의 생각 말하기</span></li>
+          <li><i class="c5"></i><span class="min">5분</span><span class="t"><b>닫기</b> — 다음 주 분량과 발제 조 확인</span></li>
+        </ol>
+      </div>
+
+      <div class="card warm">
+        <h3>책을 마친 뒤 · 최종 발표 (별도 회차)</h3>
+        <div class="bar" aria-hidden="true">
+          <div class="c1" style="flex:5">5</div>
+          <div class="c4" style="flex:65">65</div>
+          <div class="c3" style="flex:15">15</div>
+          <div class="c5" style="flex:5">5</div>
+        </div>
+        <ol class="steps">
+          <li><i class="c1"></i><span class="min">5분</span><span class="t"><b>열기</b> — 발표 순서 안내</span></li>
+          <li><i class="c4"></i><span class="min">65분</span><span class="t"><b>개인 발표</b> — 한 사람씩 최종 생각 발표와 짧은 질의응답 (8명 기준 1인 약 8분)</span></li>
+          <li><i class="c3"></i><span class="min">15분</span><span class="t"><b>종합 토의</b> — 5주 동안 생각이 어떻게 달라졌는지 나누기</span></li>
+          <li><i class="c5"></i><span class="min">5분</span><span class="t"><b>닫기</b> — 다음 책 소개, 발제 조 편성</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="s5">
+    <h2><span class="num">5</span>역할과 준비물</h2>
+    <p class="desc">매주 역할이 돌아갑니다. 책 한 권 동안 모두가 한 번씩은 발제를 맡습니다.</p>
+
+    <div class="grid3">
+      <div class="card role">
+        <span class="badge">발제 조 (2~3명)</span>
+        <h3>발제문 A4 1~2쪽</h3>
+        <ul>
+          <li>핵심 내용 요약</li>
+          <li>중요 개념 2~3개 풀이</li>
+          <li>인상 깊은 구절과 쪽수</li>
+          <li>함께 이야기할 논제 2개</li>
+        </ul>
+      </div>
+      <div class="card role">
+        <span class="badge">참여자 (전원)</span>
+        <h3>한 줄 질문 + 소감</h3>
+        <ul>
+          <li>읽으며 생긴 질문 1개</li>
+          <li>밑줄 친 문장 1개</li>
+          <li>모임 후 짧은 소감 기록 (5줄 내외)</li>
+        </ul>
+      </div>
+      <div class="card role">
+        <span class="badge">기록자 (1명)</span>
+        <h3>모임 기록</h3>
+        <ul>
+          <li>나온 질문과 주요 의견 정리</li>
+          <li>결론 나지 않은 쟁점 표시</li>
+          <li>모임 후 공유</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card green" style="margin-top:14px">
+      <h3>최종 발표(별도 회차)는 이렇게 준비합니다</h3>
+      <ul>
+        <li><b>한 문장 결론</b> — 이 책의 큰 질문에 대한 나의 답</li>
+        <li><b>근거</b> — 책의 어느 대목이 그 생각으로 이끌었는가</li>
+        <li><b>변화</b> — 1주차의 나와 지금의 나는 무엇이 달라졌는가</li>
+        <li><b>남은 질문</b> — 아직 풀리지 않은 것</li>
+      </ul>
+      <p style="margin:10px 0 0;font-size:14.5px;color:var(--sub)">형식은 자유입니다(글, 발표 자료, 대담 등). 발표문은 A4 1쪽 내외로 제출합니다.</p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="s6">
+    <h2><span class="num">6</span>우리의 약속</h2>
+    <p class="desc">철학 토의에는 정답이 없지만, 좋은 태도는 있습니다.</p>
+    <div class="grid2">
+      <div class="card"><h3>읽고 온다</h3><p style="margin:0;color:var(--sub)">다 읽지 못했어도 참석합니다. 다만 어디까지 읽었는지 솔직하게 말합니다.</p></div>
+      <div class="card"><h3>근거를 댄다</h3><p style="margin:0;color:var(--sub)">"그냥"이 아니라 "몇 쪽의 이 문장 때문에"라고 말합니다.</p></div>
+      <div class="card"><h3>끝까지 듣는다</h3><p style="margin:0;color:var(--sub)">말을 끊지 않고, 반박하기 전에 상대의 말을 먼저 요약해 봅니다.</p></div>
+      <div class="card"><h3>모른다고 말한다</h3><p style="margin:0;color:var(--sub)">이해되지 않는 부분을 묻는 것이 가장 좋은 기여입니다.</p></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section id="s7">
+    <h2><span class="num">7</span>활동이 끝나면 남는 것</h2>
+    <p class="desc">1년 뒤, 각자의 손에 다음이 남습니다.</p>
+    <div class="grid3">
+      <div class="card"><h3>발제문</h3><p style="margin:0;color:var(--sub)">책마다 1편, 총 5편 내외</p></div>
+      <div class="card"><h3>주간 소감 기록</h3><p style="margin:0;color:var(--sub)">생각이 변해 온 과정의 기록</p></div>
+      <div class="card"><h3>최종 발표문 5편</h3><p style="margin:0;color:var(--sub)">학년 말 동아리 문집으로 묶습니다</p></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section id="s8">
+    <h2><span class="num">8</span>사조·개념 해설</h2>
+    <p class="desc">책을 읽기 전에 알아두면 좋은 철학 사조와 핵심 개념을 정리해 두는 곳입니다. 책을 읽어 나가며 하나씩 채웁니다.</p>
+    <div class="grid3">
+      <a class="card" href="인물_한나_아렌트.html" style="text-decoration:none;color:inherit;">
+        <span class="tag">아렌트 · 인물</span>
+        <h3 style="margin-top:8px">한나 아렌트</h3>
+        <p style="margin:0 0 8px;color:var(--sub)">생애, 주요 저작, 핵심 개념 여덟 가지, 확인 문제</p>
+        <b style="color:var(--accent)">읽기 →</b>
+      </a>
+      <a class="card" href="해설_전체주의.html" style="text-decoration:none;color:inherit;">
+        <span class="tag">아렌트</span>
+        <h3 style="margin-top:8px">전체주의</h3>
+        <p style="margin:0 0 8px;color:var(--sub)">독재와는 다른 20세기의 새로운 지배 형태. 아렌트 사상의 출발점</p>
+        <b style="color:var(--accent)">읽기 →</b>
+      </a>
+      <a class="card" href="영화_한나_아렌트_활동자료.html" style="text-decoration:none;color:inherit;">
+        <span class="tag">아렌트 · 영화</span>
+        <h3 style="margin-top:8px">영화 〈한나 아렌트〉</h3>
+        <p style="margin:0 0 8px;color:var(--sub)">아이히만 재판과 '악의 평범성' 논쟁. 감상 안내, 토의 질문, 활동지</p>
+        <b style="color:var(--accent)">읽기 →</b>
+      </a>
+      <a class="card" href="해설_현상학과_실존철학.html" style="text-decoration:none;color:inherit;">
+        <span class="tag">아렌트의 배경</span>
+        <h3 style="margin-top:8px">현상학과 실존철학</h3>
+        <p style="margin:0 0 8px;color:var(--sub)">후설, 하이데거, 야스퍼스, 사르트르. 아렌트가 배우고 뒤집은 철학</p>
+        <b style="color:var(--accent)">읽기 →</b>
+      </a>
+      <div class="card" style="opacity:.6">
+        <span class="tag">한병철</span>
+        <h3 style="margin-top:8px">규율사회와 성과사회</h3>
+        <p style="margin:0;color:var(--sub)">준비 중</p>
+      </div>
+      <div class="card" style="opacity:.6">
+        <span class="tag">샌델</span>
+        <h3 style="margin-top:8px">자유주의와 공동체주의</h3>
+        <p style="margin:0;color:var(--sub)">준비 중</p>
+      </div>
+      <div class="card" style="opacity:.6">
+        <span class="tag">프롬</span>
+        <h3 style="margin-top:8px">비판이론 (프랑크푸르트학파)</h3>
+        <p style="margin:0;color:var(--sub)">준비 중</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>현대철학 독서 동아리 · 세부 일정은 학사일정에 따라 조정될 수 있습니다.</footer>
+</div>
+
+<div class="ph-portal-return"><a href="./index.html">← 철학 자료 포털로 돌아가기</a></div>
+</body>
+</html>
+
