@@ -6,7 +6,16 @@
 @media print{body{background:white}.site-header nav,.site-footer>a,.skip-link{display:none}.intro{padding-top:24px}.intro::after{display:none}.guide-link,.featured-book,.resource-card,.reading-note{break-inside:avoid}.resource-grid{grid-template-columns:repeat(2,1fr)}.book-art{print-color-adjust:exact;-webkit-print-color-adjust:exact}.resource-card{transform:none!important;box-shadow:none!important}}
 
 
-.journal-section{margin-top:38px}.journal-purpose{font-size:14px;color:var(--sub);line-height:1.85;margin:-2px 0 19px}.journal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.journal-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:13px;padding:23px 25px;transition:transform .16s,border-color .16s}.journal-card:hover{transform:translateY(-2px);border-color:#8cbbe0}.journal-number{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--blue);margin-bottom:13px}.journal-card h3{color:var(--navy);font-size:20px;margin-bottom:8px}.journal-card p{font-size:13px;color:var(--sub);line-height:1.85;margin-bottom:19px}.journal-action{font-size:12px;font-weight:700;color:var(--navy);margin-top:auto}.journal-card.teacher{background:#eef5fc}.journal-access{font-size:12px;color:var(--sub);line-height:1.8;margin-top:15px}
-@media(max-width:650px){.header-inner{flex-wrap:wrap;gap:15px}.header-inner nav{flex-wrap:wrap;gap:10px 17px;width:100%}.journal-section{margin-top:30px}.journal-grid{grid-template-columns:1fr}.journal-card{padding:20px 22px}.journal-card h3{font-size:18px}.journal-purpose{font-size:13px}.journal-access{font-size:11px}}
+.journal-section{margin-top:32px}.journal-purpose{font-size:13px;color:var(--sub);line-height:1.8;margin:-2px 0 16px}
+.journal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.journal-card{display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;transition:transform .16s,border-color .16s}
+.journal-card:hover{transform:translateY(-2px);border-color:#8cbbe0}
+.journal-number{font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--blue);margin-bottom:6px}
+.journal-card h3{color:var(--navy);font-size:16px;margin-bottom:5px}
+.journal-card p{font-size:12px;color:var(--sub);line-height:1.65;margin-bottom:10px}
+.journal-action{font-size:11px;font-weight:700;color:var(--navy);margin-top:auto}
+.journal-card.teacher{background:#eef5fc}.journal-access{font-size:11px;color:var(--sub);line-height:1.8;margin-top:12px}
+@media(max-width:900px){.journal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.header-inner{flex-wrap:wrap;gap:15px}.header-inner nav{flex-wrap:wrap;gap:10px 17px;width:100%}.journal-section{margin-top:26px}.journal-card{padding:12px 14px}.journal-purpose{font-size:12px}.journal-access{font-size:11px}}
+@media(max-width:380px){.journal-grid{grid-template-columns:1fr}}
 @media print{.journal-card{break-inside:avoid}}
-
