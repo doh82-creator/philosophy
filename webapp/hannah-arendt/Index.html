@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <?!= include_('Styles'); ?>
+</head>
+<body data-initial-view="<?= initialView ?>">
+  <a class="skip" href="#main">본문으로 이동</a>
+  <div id="app" aria-busy="true"><div class="initial"><span class="spinner"></span><p>학교 계정과 활동 기록을 확인하고 있습니다.</p></div></div>
+  <div id="modal-root"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <?!= include_('Client'); ?>
+</body>
+</html>

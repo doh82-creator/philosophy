@@ -1,0 +1,9 @@
+{
+  "name": "hannah-arendt-google-webapp",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node preview-server.mjs",
+    "test": "node tests/verify.mjs"
+  }
+}

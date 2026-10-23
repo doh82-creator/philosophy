@@ -1,0 +1,169 @@
+<script>
+'use strict';
+const ICONS={book:'<path d="M12 5c-3-2-7-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-2-1-6-1-9 1Zm0 0v15"/>',pen:'<path d="m15 5 4 4M4 20l4-1L20 7a3 3 0 0 0-4-4L4 15v5Z"/>',archive:'<path d="M4 8h16v13H4zM3 3h18v5H3zM9 12h6"/>',people:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.9M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-7.9a4 4 0 0 1 0 7.8"/>',arrow:'<path d="M7 17 17 7M7 7h10v10"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',download:'<path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',shield:'<path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Z"/><path d="m8 12 3 3 5-6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',chat:'<path d="M21 11a8 8 0 0 1-8 8H7l-5 3 2-6a8 8 0 1 1 17-5Z"/>',film:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4m10 0h4M3 16h4m10 0h4"/>',refresh:'<path d="M20 7v5h-5M4 17v-5h5M6 6a8 8 0 0 1 13 2M5 16a8 8 0 0 0 13 2"/>'};
+const icon=n=>`<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||ICONS.book}</svg>`;
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const deep=v=>JSON.parse(JSON.stringify(v));
+const blank=()=>({scene:'',questions:[{question:'',answer:''}],connection:'',future:''});
+const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date());
+const date=v=>v?new Date(v).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric'}):'';
+const stamp=v=>v?new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+let S=null,view='',adminTab='entries',search='',filter='all',error='',busy=false;
+let current=null,form=null,dirty=false,timer=null,saveQueue=Promise.resolve(),saveMessage='작성하면 자동으로 저장됩니다.',submitting=false;
+let selectedId=null,selectedPost=null,pendingPublication=null,returnFocus=null,toastTimer=null;
+function isTeacher(){return S?.user.role==='teacher';}
+function approved(){return isTeacher()||S?.user.status==='approved';}
+function uid(){return crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');}
+function rpc(body,attempt=0){return new Promise((resolve,reject)=>{
+  if(!window.google?.script?.run){reject(new Error('학교 웹앱 주소에서 열어 주세요. 이 파일만 열면 학교 계정과 저장소에 연결되지 않습니다.'));return;}
+  google.script.run.withSuccessHandler(r=>{if(r?.ok)resolve(r.result);else{if(r?.code==='BUSY'&&attempt<3){setTimeout(()=>rpc(body,attempt+1).then(resolve,reject),700+Math.random()*900);return;}const e=new Error(r?.error||'처리하지 못했습니다.');e.code=r?.code;reject(e);}})
+    .withFailureHandler(()=>reject(new Error('서버에 연결하지 못했습니다. 입력 내용은 유지됩니다. 다시 저장해 주세요.'))).api(body);
+});}
+function notice(message){const t=$('#toast');t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),4500);}
+function showError(message){error=message;const box=$('#page-error');if(box){box.textContent=message;box.hidden=!message;}const mb=$('#modal-error');if(mb){mb.textContent=message;mb.hidden=!message;}}
+async function load(){S=await rpc({action:'bootstrap'});return S;}
+function replaceEntry(e){S.entries=[e,...S.entries.filter(x=>x.id!==e.id)];}
+function statusBadge(e){return `<span class="tag ${e.status==='submitted'?'green':'blue'}">${e.status==='submitted'?'제출 완료':'작성 중'}</span>`;}
+function sharedFor(id){return S.publications.find(p=>p.entryId===id);}
+function updateSaveMessage(message){saveMessage=message;const node=$('#save-message');if(node)node.textContent=message;}
+function captureForm(){
+  if(!$('#write-form'))return;
+  form.title=$('#record-title').value;form.activityDate=$('#activity-date').value;
+  form.data.scene=$('#scene').value;form.data.connection=$('#connection').value;form.data.future=$('#future').value;
+  form.data.questions=Array.from(document.querySelectorAll('.qa-item')).map(n=>({question:n.querySelector('[data-qa=question]').value,answer:n.querySelector('[data-qa=answer]').value}));
+}
+function markDirty(){captureForm();dirty=true;clearTimeout(timer);updateSaveMessage('변경사항 저장 대기 중…');timer=setTimeout(()=>save(false),1600);}
+async function save(submit=false){
+  clearTimeout(timer);captureForm();
+  if(!form||!approved())return false;
+  if(!dirty&&!submit)return true;
+  const payload=deep(form), fingerprint=JSON.stringify(payload);
+  const job=async()=>{
+    updateSaveMessage('저장 중…');
+    try{
+      const previous=S.entries.find(e=>e.id===payload.id);
+      const r=await rpc({action:'save',...payload,revision:previous?.revision||0,submit});
+      replaceEntry(r.entry);
+      if(form?.id===payload.id){
+        if(JSON.stringify(form)===fingerprint){dirty=false;updateSaveMessage(submit?'교사에게 제출했습니다.':'모든 변경사항이 저장되었습니다.');}
+        else updateSaveMessage('새 변경사항 저장 대기 중…');
+      }
+      showError('');return true;
+    }catch(e){showError(e.message);updateSaveMessage('저장하지 못했습니다. 다시 저장해 주세요.');return false;}
+  };
+  const next=saveQueue.then(job,job);saveQueue=next;return next;
+}
+async function flush(){clearTimeout(timer);if(dirty&&!await save(false))return false;await saveQueue;return true;}
+function newForm(){current=null;form={id:uid(),title:'영화 한나 아렌트 활동 기록',activityDate:today(),data:blank()};dirty=false;saveMessage='작성하면 자동으로 저장됩니다.';}
+async function navigate(next){if(!await flush())return;view=next;search='';filter='all';if(view==='write'&&!form)newForm();render();window.scrollTo({top:0});}
+async function edit(id){if(!await flush())return;const e=S.entries.find(x=>x.id===id&&x.email===S.user.email);if(!e)return;
+  current=id;form={id:e.id,title:e.title,activityDate:e.activityDate,data:deep(e.data)};dirty=false;saveMessage='저장된 기록을 불러왔습니다.';closeModal();view='write';render();window.scrollTo({top:0});}
+function heading(title,description,actions=''){return `<div class="page-heading"><div><span class="micro">PHILOSOPHY JOURNAL</span><h1>${title}</h1><p>${description}</p></div>${actions}</div>`;}
+function errorBox(){return `<div id="page-error" class="error" role="alert" ${error?'':'hidden'}>${esc(error)}</div>`;}
+function empty(title,description,action=''){return `<div class="empty">${icon('book')}<h2>${title}</h2><p>${description}</p>${action}</div>`;}
+function stat(label,value,unit='건'){return `<div class="stat"><span>${label}</span><b>${value}<small>${unit}</small></b></div>`;}
+function btn(action,text,extra='',style=''){return `<button type="button" class="button ${style}" data-action="${action}" ${extra}>${text}</button>`;}
+function render(){
+ if(!S)return;
+ const u=S.user;
+ const nav=[['archive','archive','나의 활동 기록'],['write','pen','활동 작성하기'],['community','chat','다른 친구의 생각 보기'],...(isTeacher()?[['teacher','shield','교사 대시보드']]:[])];
+ const titles={archive:'나의 활동 기록',write:'활동 작성하기',community:'다른 친구의 생각 보기',teacher:'교사 대시보드'};
+ const body=approved()?(view==='write'?writeView():view==='community'?communityView():view==='teacher'&&isTeacher()?teacherView():archiveView()):membershipView();
+ $('#app').innerHTML=`<div class="shell"><aside class="sidebar"><a class="brand" href="https://doh82-creator.github.io/philosophy/"> <span class="brand-symbol">${icon('book')}</span><span><strong>현대철학 독서동아리</strong><small>PHILOSOPHY CLUB</small></span></a><div class="side-caption">생각을 기록하고 함께 읽는 곳</div><nav class="nav" aria-label="주 메뉴">${nav.map(([v,i,n])=>`<button type="button" data-action="nav" data-view="${v}" class="${v===view?'active':''}" ${v===view?'aria-current="page"':''}>${icon(i)}${n}</button>`).join('')}</nav><div class="side-book"><span class="eyebrow">다음에 함께 읽을 책</span>${icon('book')}<h3>인간의 조건</h3><p>한나 아렌트<br>영화에서 시작한 질문을 책으로 이어갑니다.</p></div><a class="portal-link" href="https://doh82-creator.github.io/philosophy/">${icon('arrow')}동아리 포털로 돌아가기</a></aside><main class="main" id="main"><header class="topbar"><span>영화 〈한나 아렌트〉 · 선행 활동</span><button class="profile-pill" data-action="profile" type="button"><span class="avatar">${esc((u.name||'나').slice(0,1))}</span>${esc(u.name||'내 정보 입력')}<span class="role">${isTeacher()?'담당 교사':'동아리 구성원'}</span></button></header><div class="page">${errorBox()}${body}</div><footer class="footer"><span>현대철학 독서동아리 · 기록을 통해 생각의 변화를 돌아봅니다.</span><span>PHILOSOPHY CLUB ARCHIVE</span></footer></main></div>`;
+ $('#app').setAttribute('aria-busy','false');
+ document.title=(titles[view]||'활동 기록')+' · 현대철학 독서동아리';
+}
+function membershipView(){const blocked=S.user.status==='blocked';return heading('학교 계정 확인','활동에 참여하기 전에 이름과 학번을 확인합니다.')+empty(blocked?'접근이 제한되어 있습니다.':'구성원 승인을 기다리고 있습니다.',blocked?'담당 교사에게 확인해 주세요.':`${esc(S.user.email)}<br>학교 계정으로 접속했습니다. 이름과 학번을 입력하면 교사가 확인 후 승인합니다.`,btn('profile','이름과 학번 입력')+' '+btn('refresh','승인 상태 새로고침'));}
+function countText(id,v,max){return `<span class="count" data-count="${id}">${(v||'').length.toLocaleString()} / ${max.toLocaleString()}자</span>`;}
+function textarea(id,label,help,value,rows,max,optional=false){return `<div class="field"><label for="${id}">${label}${optional?'<span class="optional">선택</span>':'<span class="required">*</span>'}</label><p class="field-help" id="${id}-help">${help}</p><textarea id="${id}" rows="${rows}" maxlength="${max}" aria-describedby="${id}-help" ${optional?'':'required'}>${esc(value)}</textarea>${countText(id,value,max)}</div>`;}
+function qaMarkup(){return form.data.questions.map((q,i)=>`<div class="qa-item" data-index="${i}"><div class="qa-head"><b>질문과 나의 답 ${String(i+1).padStart(2,'0')}</b>${i>0?`<button type="button" class="text-button" data-action="remove-question" data-index="${i}" aria-label="질문과 답 ${i+1} 삭제">삭제</button>`:''}</div><div class="field"><label for="q-${i}">친구들에게 던질 질문<span class="required">*</span></label><textarea id="q-${i}" data-qa="question" rows="2" maxlength="1500" required placeholder="영화를 보며 어떤 질문이 떠올랐나요?">${esc(q.question)}</textarea></div><div class="field"><label for="a-${i}">이 질문에 대한 나의 답<span class="required">*</span></label><textarea id="a-${i}" data-qa="answer" rows="3" maxlength="5000" required placeholder="친구들의 답을 듣기 전에, 지금 나의 답과 그 이유를 적어 보세요.">${esc(q.answer)}</textarea></div></div>`).join('');}
+function writeView(){
+ if(!form)newForm();const e=S.entries.find(x=>x.id===form.id),published=sharedFor(form.id);
+ return heading('활동 기록하기','한 장면에서 시작한 생각을 나의 질문으로 남깁니다.',btn('new','새 기록',`${''}`))+
+ `<section class="hero"><div class="tags"><span class="tag blue">ACTIVITY 01</span><span class="tag">${icon('film')} 영화 · 선행 활동</span></div><h2>『인간의 조건』을 향한 첫 질문</h2><p>영화 〈한나 아렌트〉를 보며 아렌트가 인간과 세계에 관해 무엇을 고민했는지 탐색합니다. 지금의 생각을 기록하고, 『인간의 조건』을 읽으며 더 알아볼 질문을 남깁니다.</p><div class="path"><span>${icon('pen')}개인 기록 → 질문 → 함께 읽기</span><span>${icon('archive')}나의 활동 기록에 누적</span></div></section>
+ <p class="info"><strong>저장한 활동지는 본인과 교사가 볼 수 있습니다.</strong> 교사가 공유한 제출본만 다른 구성원에게 보입니다.${published?' 현재 공유된 제출본은 수정 중인 내용과 별도로 보존됩니다.':''}${e?.status==='submitted'?' 제출 후 다시 수정하면 작성 중 상태로 저장되며, 수정한 내용을 다시 제출할 수 있습니다.':''}</p>
+ <form id="write-form"><section class="card"><div class="meta-grid"><div class="field"><label for="record-title">기록 제목</label><input id="record-title" maxlength="120" value="${esc(form.title)}" required></div><div class="field"><label for="activity-date">활동일</label><input id="activity-date" type="date" value="${esc(form.activityDate)}" required></div></div></section>
+ <section class="card"><div class="section-head"><span class="step">01</span><h2>인상적인 장면</h2></div>${textarea('scene','어떤 장면이 인상적이었나요?','장면 속 상황과 인물의 말·행동을 설명하고, 그 장면을 선택한 이유를 적습니다.',form.data.scene,5,6000)}</section>
+ <section class="card"><div class="section-head"><span class="step">02</span><h2>영화를 보면서 들었던 질문과 나의 답</h2></div><p class="field-help">다른 친구들에게 함께 생각해 보자고 던질 질문입니다. 먼저 이 질문에 대한 나의 답과 그 이유를 적습니다.</p><div id="questions">${qaMarkup()}</div><button type="button" class="add-question" data-action="add-question" ${form.data.questions.length>=10?'disabled':''}>${icon('plus')}질문과 답 추가 <span>(${form.data.questions.length}/10)</span></button></section>
+ <section class="card"><div class="section-head"><span class="step">03</span><h2>이 영화 속 장면과 한나 아렌트의 사상이 연결되는 지점은?</h2></div>${textarea('connection','장면과 아렌트의 생각을 연결해 보세요.','아렌트의 사상을 엿볼 수 있는 장면을 찾아 설명합니다. 어떤 생각이 드러난다고 보았으며, 왜 그렇게 해석했는지 적습니다.',form.data.connection,6,7000)}</section>
+ <section class="card"><div class="section-head"><span class="step">04</span><h2>향후 더 알아보고 싶은 점</h2></div>${textarea('future','다음 독서에서 더 탐구하고 싶은 것이 있나요?','다음 활동인 『인간의 조건』을 읽으면서 더 알아보고 싶은 점을 간단하게 적습니다. 아직 떠오르지 않으면 비워 두어도 됩니다.',form.data.future,3,3000,true)}</section>
+ <div class="save-bar"><span class="save-info">${icon('check')}<span id="save-message" role="status">${esc(saveMessage)}</span></span><div class="button-row">${btn('download-draft',icon('download')+'내려받기')}${btn('save','저장')}${btn('submit','교사에게 제출','','primary')}</div></div></form>`;
+}
+function archiveView(){const mine=S.entries.filter(e=>e.email===S.user.email),visible=mine.filter(e=>(filter==='all'||e.status===filter)&&[e.title,...Object.values(e.data).map(v=>typeof v==='string'?v:JSON.stringify(v))].join(' ').toLowerCase().includes(search.toLowerCase()));
+ const myIds=new Set(mine.map(e=>e.id));return heading('나의 활동 기록','내가 남긴 질문과 생각을 활동별로 모아 봅니다.',btn('new',icon('plus')+'새 기록','','primary'))+
+ `<div class="stats">${stat('전체 활동 기록',mine.length)}${stat('제출한 기록',mine.filter(e=>e.status==='submitted').length)}${stat('구성원과 공유 중',S.publications.filter(p=>myIds.has(p.entryId)).length)}${stat('교사 피드백',mine.filter(e=>e.feedback).length)}</div><div class="toolbar"><input class="search" id="search" aria-label="나의 기록 검색" placeholder="제목이나 기록 내용 검색" value="${esc(search)}"><select id="filter" aria-label="작성 상태"><option value="all">모든 기록</option><option value="draft" ${filter==='draft'?'selected':''}>작성 중</option><option value="submitted" ${filter==='submitted'?'selected':''}>제출 완료</option></select></div>${!visible.length?empty(mine.length?'검색한 기록이 없습니다.':'첫 생각을 남겨 보세요.',mine.length?'검색어나 작성 상태를 바꿔 보세요.':'영화에서 시작한 질문을 기록하면 이곳에 차곡차곡 쌓입니다.',btn('new','활동 기록하기','','primary')):`<div class="record-grid">${visible.map(e=>`<article class="record-card"><div class="row">${statusBadge(e)}<span class="date">${esc(e.activityDate)}</span></div><h2>${esc(e.title)}</h2><p class="preview-text">${esc(e.data.questions?.[0]?.question||e.data.scene||'작성 중인 기록입니다.')}</p>${sharedFor(e.id)?'<p class="fine">교사가 선택한 제출본이 구성원에게 공유 중입니다.</p>':''}<div class="button-row">${btn('open',icon('eye')+'기록 보기',`data-id="${e.id}"`)}${btn('edit','이어서 수정',`data-id="${e.id}"`)}<button type="button" class="text-button" data-action="versions" data-id="${e.id}">제출 이력</button></div>${e.feedback?'<p class="fine" style="margin-top:14px;margin-bottom:0">선생님이 남긴 피드백이 있습니다.</p>':''}</article>`).join('')}</div>`}`;
+}
+function communityView(){const ownIds=new Set(S.entries.filter(e=>e.email===S.user.email).map(e=>e.id));const posts=S.publications.filter(p=>!ownIds.has(p.entryId)&&[p.author,p.title,JSON.stringify(p.data)].join(' ').toLowerCase().includes(search.toLowerCase()));
+ return heading('다른 친구의 생각 보기','같은 영화를 보고 떠올린 서로 다른 질문을 읽어 봅니다.')+`<p class="info">교사가 공유한 제출 기록을 읽을 수 있습니다. 이름과 공유된 항목만 표시됩니다.</p><div class="toolbar"><input class="search" id="search" aria-label="공유된 생각 검색" placeholder="이름, 질문, 기록 내용 검색" value="${esc(search)}">${btn('refresh',icon('refresh')+'새로고침')}</div>${!posts.length?empty('아직 함께 읽을 기록이 없습니다.','교사가 친구들의 제출 기록을 공유하면 이곳에 표시됩니다.'):`<div class="peer-grid">${posts.map(p=>`<button type="button" class="peer-card" data-action="post" data-id="${p.entryId}"><div class="row"><span class="author">${esc(p.author)}</span><span class="date">${esc(p.activityDate)}</span></div><h2>${esc(p.data.questions?.[0]?.question||p.title)}</h2><p class="preview-text">${esc(p.data.questions?.[0]?.answer||p.data.scene||p.data.connection||p.data.future||'공유된 활동 기록을 읽어 보세요.')}</p><div class="peer-footer"><span>공유된 생각 읽기</span>${icon('arrow')}</div></button>`).join('')}</div>`}`;
+}
+function teacherView(){const entries=S.entries.filter(e=>(filter==='all'||filter==='shared'&&sharedFor(e.id)||e.status===filter)&&[e.name,e.studentNo,e.title,JSON.stringify(e.data)].join(' ').toLowerCase().includes(search.toLowerCase()));
+ return heading('교사 대시보드','학생들의 기록을 확인하고, 함께 읽을 제출본을 선택합니다.',btn('export',icon('download')+'전체 기록 CSV'))+
+ `<div class="stats">${stat('승인된 학생',S.members.filter(m=>m.role==='student'&&m.status==='approved').length,'명')}${stat('승인 대기',S.members.filter(m=>m.status==='pending').length,'명')}${stat('저장된 전체 기록',S.entries.length)}${stat('공유 중인 제출본',S.publications.length)}</div><div class="subtabs"><button data-action="admin-tab" data-tab="entries" class="${adminTab==='entries'?'active':''}">활동 기록</button><button data-action="admin-tab" data-tab="members" class="${adminTab==='members'?'active':''}">구성원 관리</button></div>${adminTab==='members'?membersView():`<div class="toolbar"><input class="search" id="search" aria-label="학생 기록 검색" placeholder="학번, 이름, 제목, 내용 검색" value="${esc(search)}"><div class="button-row"><select id="filter" aria-label="기록 상태"><option value="all">모든 기록</option><option value="draft" ${filter==='draft'?'selected':''}>작성 중</option><option value="submitted" ${filter==='submitted'?'selected':''}>제출 완료</option><option value="shared" ${filter==='shared'?'selected':''}>공유 중</option></select>${btn('refresh',icon('refresh')+'새로고침')}</div></div><p class="info">작성 중인 기록도 확인할 수 있습니다. 공유는 학생이 제출한 기록에서 항목을 선택한 뒤 미리보기를 거쳐 설정합니다.</p><section class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>학생</th><th>기록 제목</th><th>활동일</th><th>작성 상태</th><th>공유 상태</th><th>최근 저장</th></tr></thead><tbody>${entries.map(e=>`<tr><td><b>${esc(e.name||'이름 미입력')}</b><small>${esc(e.studentNo)}</small></td><td><button class="text-button" data-action="open" data-id="${e.id}">${esc(e.title)}</button>${e.feedback?'<small>피드백 있음</small>':''}</td><td>${esc(e.activityDate)}</td><td>${statusBadge(e)}</td><td><span class="tag ${sharedFor(e.id)?'blue':''}">${sharedFor(e.id)?'공유 중':'미공유'}</span></td><td>${esc(stamp(e.updatedAt))}</td></tr>`).join('')||'<tr><td colspan="6">아직 저장된 학생 기록이 없습니다.</td></tr>'}</tbody></table></div></section>`}`;
+}
+function membersView(){return `<section class="card"><h2>학교 계정과 구성원 승인</h2><p>학생이 학교 계정으로 접속하여 입력한 이름과 학번을 확인합니다. 승인을 해제하면 작성과 공유 기록 열람이 제한됩니다.</p><div class="table-wrap"><table><thead><tr><th>이름과 학번</th><th>학교 계정</th><th>승인 상태</th><th>관리</th></tr></thead><tbody>${S.members.map(m=>`<tr><td><b>${esc(m.name||'입력 대기')}</b><small>${esc(m.studentNo)}</small></td><td>${esc(m.email)}</td><td>${m.role==='teacher'?'담당 교사':m.status==='approved'?'승인됨':m.status==='blocked'?'접근 제한':'승인 대기'}</td><td>${m.role==='teacher'?'':`<div class="approval-row"><button class="text-button" data-action="approve" data-email="${esc(m.email)}" data-status="${m.status==='approved'?'pending':'approved'}">${m.status==='approved'?'승인 해제':'승인하기'}</button>${m.status!=='blocked'?`<button class="text-button" data-action="approve" data-email="${esc(m.email)}" data-status="blocked">접근 제한</button>`:''}</div>`}</td></tr>`).join('')}</tbody></table></div></section>`;}
+function detail(data,fields=Object.keys(S.labels)){return fields.filter(k=>data[k]!==undefined).map(k=>`<section class="detail-section"><h3>${esc(S.labels[k])}</h3>${k==='questions'?(data.questions||[]).map((q,i)=>`<p class="q">${i+1}. ${esc(q.question)}</p><p>${esc(q.answer)}</p>`).join(''):`<p>${esc(data[k]||'작성하지 않은 항목입니다.')}</p>`}</section>`).join('');}
+function modal(title,html){
+ if(!$('#modal-root').firstChild)returnFocus=document.activeElement;
+ document.body.style.overflow='hidden';$('#modal-root').innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><h2 id="modal-title">${esc(title)}</h2><button class="icon-button" data-action="close-modal" aria-label="닫기">${icon('close')}</button></div><div class="modal-body"><div id="modal-error" class="error" role="alert" hidden></div>${html}</div></section></div>`;
+ $('#modal-root [data-action=close-modal]').focus();
+}
+function closeModal(){if(busy)return;$('#modal-root').innerHTML='';document.body.style.overflow='';returnFocus?.focus?.();returnFocus=null;}
+function profileModal(){modal('나의 정보',`<p class="fine">학교 계정은 자동으로 확인합니다. 교사가 알아볼 수 있도록 이름과 학번을 입력해 주세요.</p><form data-form="profile"><div class="field"><label for="profile-name">이름</label><input id="profile-name" maxlength="60" value="${esc(S.user.name)}" required autocomplete="name"></div><div class="field"><label for="profile-no">학번 ${isTeacher()?'<span class="optional">선택</span>':''}</label><input id="profile-no" maxlength="20" value="${esc(S.user.studentNo)}" ${isTeacher()?'':'required'}></div><p class="fine">학교 계정: ${esc(S.user.email)}</p><div class="modal-actions"><button type="submit" class="button primary">정보 저장</button></div></form>`);}
+function openRecord(id){const e=S.entries.find(x=>x.id===id);if(!e)return;selectedId=id;const pub=sharedFor(id);
+ modal(isTeacher()?`${e.name||'학생'}의 활동 기록`:'나의 활동 기록',`<div class="detail-meta"><span>${esc(e.activityDate)}</span>${statusBadge(e)}<span>최근 저장 ${esc(stamp(e.updatedAt))}</span>${pub?`<span class="tag blue">${pub.revision}번째 저장본 공유 중</span>`:''}</div><h3 style="font-size:17px;line-height:1.8">${esc(e.title)}</h3>${detail(e.data)}${isTeacher()?`<form class="feedback" data-form="feedback"><h3>교사 피드백</h3><p class="fine">본인과 교사만 볼 수 있습니다.</p><textarea id="feedback-input" rows="3" maxlength="5000" aria-label="교사 피드백">${esc(e.feedback)}</textarea><div class="modal-actions"><button type="submit" class="button">피드백 저장</button></div></form><div class="share-panel"><h3>다른 학생에게 보여 줄 항목</h3><p>제출본의 선택한 항목과 학생 이름을 구성원에게 공유합니다. 피드백과 학교 이메일·학번은 포함되지 않습니다.</p>${e.status!=='submitted'?'<p class="tag pink">작성 중인 기록입니다. 제출한 뒤 공유할 수 있습니다.</p>':''}<div class="share-checks">${Object.keys(S.labels).map(k=>`<label><input class="share-field" type="checkbox" value="${k}" ${!pub||pub.fields.includes(k)?'checked':''}><span>${esc(S.labels[k])}</span></label>`).join('')}</div><div class="modal-actions">${pub?btn('unpublish','공유 해제',`data-id="${e.id}"`,'danger'):''}${btn('preview-share',icon('eye')+'공유 내용 미리보기',`data-id="${e.id}" ${e.status!=='submitted'?'disabled':''}`,'primary')}</div></div>`:e.feedback?`<div class="feedback"><h3>선생님이 남긴 피드백</h3><p>${esc(e.feedback)}</p></div>`:''}<div class="modal-actions">${btn('download-entry',icon('download')+'내려받기',`data-id="${e.id}"`)}${btn('versions','제출 이력',`data-id="${e.id}"`)}${e.email===S.user.email?btn('edit','이어서 수정',`data-id="${e.id}"`):''}</div>`);
+}
+function previewShare(id){const e=S.entries.find(x=>x.id===id);if(!e)return;const fields=Array.from(document.querySelectorAll('.share-field:checked')).map(x=>x.value);if(!fields.length){showError('공유할 항목을 하나 이상 선택해 주세요.');return;}
+ pendingPublication={entryId:id,revision:e.revision,fields};modal('구성원에게 보일 내용',`<div class="detail-meta"><span class="tag blue">${esc(e.name)} · 동아리 구성원에게 공유</span><span>${esc(e.activityDate)}</span></div><h3>${esc(e.title)}</h3>${detail(e.data,fields)}<div class="modal-actions">${btn('open','돌아가기',`data-id="${id}"`)}${btn('publish','선택한 내용 공유','','primary')}</div>`);}
+function openPost(id){const p=S.publications.find(x=>x.entryId===id);if(!p)return;selectedPost=id;modal(`${p.author}의 생각`, `<div class="detail-meta"><span>${esc(p.activityDate)}</span><span>교사가 공유한 제출본</span></div><h3>${esc(p.title)}</h3>${detail(p.data,p.fields)}<p class="connection-note">같은 장면을 어떻게 다르게 읽었는지, 질문에 대한 나의 답은 무엇인지 생각해 보세요.</p>`);}
+async function versions(id){try{const r=await rpc({action:'versions',entryId:id});selectedId=id;modal('제출 이력',`${r.versions.length?r.versions.map((v,i)=>`<section class="history-item"><h3>${esc(stamp(v.submittedAt))} 제출</h3><p>${esc(v.title)} · 저장본 ${v.revision}</p><details><summary class="text-button">이 제출본 보기</summary>${detail(v.data)}</details></section>`).join(''):'<p class="fine">아직 제출한 기록이 없습니다. 작성 중인 내용은 나의 활동 기록에서 확인할 수 있습니다.</p>'}`);}catch(e){showError(e.message);}}
+function download(content,name,type='application/json;charset=utf-8'){const blob=new Blob([typeof content==='string'?content:JSON.stringify(content,null,2)],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.target='_self';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+async function mutation(body,message){if(busy)return false;busy=true;showError('');try{await rpc(body);await load();if(message)notice(message);return true;}catch(e){showError(e.message);return false;}finally{busy=false;}}
+document.addEventListener('click',async ev=>{
+ const button=ev.target.closest('button[data-action]');if(!button||button.disabled||busy)return;const a=button.dataset.action,id=button.dataset.id;
+ if(a==='nav')await navigate(button.dataset.view);
+ else if(a==='new'){if(!await flush())return;newForm();view='write';render();window.scrollTo({top:0});}
+ else if(a==='profile')profileModal();
+ else if(a==='close-modal')closeModal();
+ else if(a==='open')openRecord(id);
+ else if(a==='edit')await edit(id);
+ else if(a==='post')openPost(id);
+ else if(a==='versions')await versions(id);
+ else if(a==='preview-share')previewShare(id);
+ else if(a==='add-question'){captureForm();if(form.data.questions.length>=10)return;form.data.questions.push({question:'',answer:''});dirty=true;render();$('#q-'+(form.data.questions.length-1)).focus();clearTimeout(timer);timer=setTimeout(()=>save(false),1600);}
+ else if(a==='remove-question'){captureForm();const i=Number(button.dataset.index),q=form.data.questions[i];if(q&&(q.question||q.answer)&&!confirm('이 질문과 답을 삭제할까요?'))return;form.data.questions.splice(i,1);dirty=true;render();clearTimeout(timer);timer=setTimeout(()=>save(false),1600);}
+ else if(a==='save'){if(await save(false))notice('기록을 저장했습니다.');}
+ else if(a==='submit'){
+   if(submitting)return;if(!S.user.name||(!isTeacher()&&!S.user.studentNo)){profileModal();return;}
+   if(!$('#write-form').reportValidity())return;
+   submitting=true;button.disabled=true;
+   document.querySelectorAll('#write-form input,#write-form textarea').forEach(n=>n.readOnly=true);
+   try{if(await save(true)){notice('교사에게 제출했습니다. 나의 활동 기록에서 다시 볼 수 있습니다.');render();}}
+   finally{submitting=false;document.querySelectorAll('#write-form input,#write-form textarea').forEach(n=>n.readOnly=false);if(button.isConnected)button.disabled=false;}
+ }
+ else if(a==='download-draft'){captureForm();download(form,'한나아렌트_작성중_기록.json');}
+ else if(a==='download-entry'){const e=S.entries.find(x=>x.id===id);if(e)download(e,'한나아렌트_활동기록.json');}
+ else if(a==='admin-tab'){adminTab=button.dataset.tab;search='';filter='all';render();}
+ else if(a==='refresh'){if(!await flush())return;try{await load();showError('');render();notice('최신 기록을 불러왔습니다.');}catch(e){showError(e.message);}}
+ else if(a==='approve'){if(await mutation({action:'member',email:button.dataset.email,status:button.dataset.status},'구성원 상태를 변경했습니다.'))render();}
+ else if(a==='publish'){if(pendingPublication&&await mutation({action:'publish',...pendingPublication},'선택한 제출 내용을 구성원에게 공유했습니다.')){closeModal();render();}}
+ else if(a==='unpublish'){if(await mutation({action:'unpublish',entryId:id},'구성원 공유를 해제했습니다.')){render();openRecord(id);}}
+ else if(a==='export'){try{const r=await rpc({action:'export'});download(r.csv,'한나아렌트_전체활동기록.csv','text/csv;charset=utf-8');}catch(e){showError(e.message);}}
+});
+document.addEventListener('submit',async ev=>{ev.preventDefault();const type=ev.target.dataset.form;
+ if(type==='profile'){const name=$('#profile-name').value,studentNo=$('#profile-no').value;if(await mutation({action:'profile',name,studentNo},'내 정보를 저장했습니다.')){closeModal();render();}}
+ else if(type==='feedback'){const feedback=$('#feedback-input').value;if(await mutation({action:'feedback',entryId:selectedId,feedback},'피드백을 저장했습니다.')){render();openRecord(selectedId);}}
+});
+document.addEventListener('input',ev=>{
+ if(ev.target.closest('#write-form')){markDirty();if(ev.target.id){const count=document.querySelector(`[data-count="${ev.target.id}"]`);if(count)count.textContent=ev.target.value.length.toLocaleString()+' / '+Number(ev.target.maxLength).toLocaleString()+'자';}}
+ if(ev.target.id==='search'){search=ev.target.value;const position=ev.target.selectionStart;render();$('#search').focus();$('#search').setSelectionRange(position,position);}
+});
+document.addEventListener('change',ev=>{if(ev.target.id==='filter'){filter=ev.target.value;render();}});
+document.addEventListener('keydown',ev=>{
+ if(!$('#modal-root').firstChild)return;
+ if(ev.key==='Escape'){ev.preventDefault();closeModal();}
+ if(ev.key==='Tab'){const items=Array.from(document.querySelectorAll('.modal button:not(:disabled),.modal input,.modal textarea,.modal select,.modal a,.modal summary'));const first=items[0],last=items[items.length-1];if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last?.focus();}else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first?.focus();}}
+});
+window.addEventListener('beforeunload',ev=>{if(dirty){ev.preventDefault();ev.returnValue='';}});
+(async()=>{try{await load();view=document.body.dataset.initialView||(isTeacher()?'teacher':'archive');if(view==='teacher'&&!isTeacher())view='archive';render();if(!S.user.name)profileModal();}catch(e){$('#app').innerHTML=`<main class="initial" style="max-width:680px;margin:auto;padding:30px"><span class="brand-symbol">${icon('shield')}</span><h1 style="font-size:22px">학교 계정 접속을 확인해 주세요.</h1><p style="text-align:center">${esc(e.message)}</p><button class="button primary" type="button" onclick="location.reload()">다시 확인</button><a class="fine" href="https://doh82-creator.github.io/philosophy/">동아리 포털로 돌아가기</a></main>`;$('#app').setAttribute('aria-busy','false');}})();
+</script>
