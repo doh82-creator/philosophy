@@ -4,7 +4,8 @@ var SCHEMA_ = {
   Members: ['email','name','studentNo','status','createdAt','updatedAt'],
   Entries: ['id','email','title','activityDate','revision','status','data','createdAt','updatedAt','submittedAt','feedback','feedbackAt'],
   Versions: ['id','entryId','email','revision','data','title','activityDate','submittedAt'],
-  Publications: ['entryId','revision','author','title','activityDate','fields','data','publishedAt','publishedBy','active']
+  Publications: ['entryId','revision','author','title','activityDate','fields','data','publishedAt','publishedBy','active'],
+  Seminars: ['id','email','revision','data','published','publishedRevision','publishedAt','updatedAt']
 };
 var FIELD_LABELS_ = {
   scene: '인상적인 장면',
@@ -30,6 +31,7 @@ function install_() {
   if (existing) {
     var teachers = JSON.parse(props.getProperty('TEACHER_EMAILS') || '[]');
     if (teachers.indexOf(email) < 0) throw new Error('설치한 교사만 초기 설정을 확인할 수 있습니다.');
+    ensureReadingSchema_({book:SpreadsheetApp.openById(existing)});
     console.log('기존 저장소를 유지합니다. 스프레드시트: ' + SpreadsheetApp.openById(existing).getUrl());
     return;
   }
@@ -47,9 +49,11 @@ function install_() {
 function doGet(e) {
   var template=HtmlService.createTemplateFromFile('Index');
   var requested=e && e.parameter && e.parameter.view;
-  template.initialView=['write','archive','community','teacher'].indexOf(requested)>=0?requested:'';
+  template.initialView=['write','archive','community','teacher','reading'].indexOf(requested)>=0?requested:'';
+  template.initialRound=Number(e&&e.parameter&&e.parameter.round)||0;
+  if(!Number.isInteger(template.initialRound)||template.initialRound<1||template.initialRound>8)template.initialRound=0;
   return template.evaluate()
-    .setTitle('한나 아렌트 활동 기록')
+    .setTitle('현대철학 동아리 활동 기록')
     .addMetaTag('viewport','width=device-width, initial-scale=1');
 }
 function include_(name) { return HtmlService.createHtmlOutputFromFile(name).getContent(); }
@@ -127,7 +131,7 @@ function publicationView_(p) {
 }
 function state_(ctx) {
   var me=publicMember_(ctx.member,ctx.isTeacher);
-  var out={user:me,entries:[],publications:[],members:[],labels:FIELD_LABELS_};
+  var out={user:me,entries:[],publications:[],members:[],seminars:[],labels:FIELD_LABELS_,recordLabels:READING_LABELS_};
   if(!ctx.isTeacher && ctx.member.status!=='approved') return out;
   var members=rows_(ctx.db,'Members'), es=rows_(ctx.db,'Entries');
   out.entries=es.filter(function(x){return ctx.isTeacher || x.email===ctx.email;})
@@ -138,10 +142,14 @@ function state_(ctx) {
     return !!e && members.some(function(m){return m.email===e.email && m.status==='approved';});
   }).sort(function(a,b){return String(b.publishedAt).localeCompare(String(a.publishedAt));}).map(publicationView_);
   if(ctx.isTeacher) out.members=members.map(function(m){return publicMember_(m,ctx.teacherEmails.indexOf(m.email)>=0);});
+  out.seminars=seminarsState_(ctx);
   return out;
 }
-function cleanData_(raw,submit) {
+function cleanData_(raw,submit,ctx,entry) {
   raw=raw||{};
+  var kind=recordKind_(raw);
+  if(entry && recordKind_(json_(entry.data,{}))!==kind)fail_('기록의 활동 유형은 변경할 수 없습니다.');
+  if(kind!=='movie')return cleanReadingRecord_(ctx,raw,submit,entry);
   if(!Array.isArray(raw.questions) || raw.questions.length<1 || raw.questions.length>10) fail_('질문과 답은 1개부터 10개까지 작성할 수 있습니다.');
   var d={scene:text_(raw.scene,6000),questions:raw.questions.map(function(q){
     if(!q || typeof q!=='object') fail_('질문 형식을 확인해 주세요.');
@@ -161,7 +169,8 @@ function save_(ctx,b) {
   if(!Number.isInteger(expected) || expected<0 || (e?Number(e.revision)!==expected:expected!==0))
     fail_('다른 창에서 기록이 변경되었습니다. 현재 내용을 내려받은 뒤 새로고침해 주세요.','CONFLICT');
   if(!ctx.member.name || (!ctx.isTeacher && !ctx.member.studentNo)) fail_('먼저 이름과 학번을 입력해 주세요.','PROFILE');
-  var submitted=b.submit===true, data=cleanData_(b.data,submitted);
+  var submitted=b.submit===true, data=cleanData_(b.data,submitted,ctx,e);
+  if(data.kind && rows_(ctx.db,'Entries').some(function(x){var d=json_(x.data,{});return x.id!==id&&x.email===ctx.email&&d.kind===data.kind&&Number(d.round)===data.round;}))fail_('이 발제의 기록이 이미 있습니다. 나의 활동 기록에서 이어서 수정해 주세요.','CONFLICT');
   var day=text_(b.activityDate,10);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(day) || isNaN(new Date(day+'T00:00:00Z').getTime())) fail_('활동일을 확인해 주세요.');
   var timestamp=now_();
@@ -182,11 +191,11 @@ function publish_(ctx,b) {
   if(Number(b.revision)!==Number(e.revision)) fail_('기록이 변경되었습니다. 최신 제출본을 다시 확인해 주세요.','CONFLICT');
   var owner=rows_(ctx.db,'Members').find(function(m){return m.email===e.email;});
   if(!owner || owner.status!=='approved') fail_('승인된 구성원의 제출 기록만 공유할 수 있습니다.');
-  var fields=Object.keys(FIELD_LABELS_).filter(function(k){return Array.isArray(b.fields)&&b.fields.indexOf(k)>=0;});
+  var fields=Object.keys(labelsFor_(json_(e.data,{}))).filter(function(k){return Array.isArray(b.fields)&&b.fields.indexOf(k)>=0;});
   if(!fields.length) fail_('공유할 항목을 하나 이상 선택해 주세요.');
   var saved=rows_(ctx.db,'Versions').find(function(v){return v.entryId===e.id && Number(v.revision)===Number(e.revision);});
   if(!saved) fail_('제출본을 찾지 못했습니다. 학생이 다시 제출한 뒤 시도해 주세요.');
-  var original=json_(saved.data,{}), snapshot={};
+  var original=json_(saved.data,{}), snapshot=readingContext_(original);
   fields.forEach(function(k){snapshot[k]=original[k];});
   var previous=rows_(ctx.db,'Publications').find(function(p){return p.entryId===e.id;});
   put_(ctx.db,'Publications',Object.assign({},previous||{}, {entryId:e.id,revision:Number(e.revision),author:owner.name,
@@ -197,11 +206,11 @@ function publish_(ctx,b) {
 function csvCell_(v) { var s=typeof v==='string'?v:String(v==null?'':v); if(/^[=+\-@\t\r]/.test(s))s="'"+s; return '"'+s.replace(/"/g,'""')+'"'; }
 function export_(ctx) {
   teacher_(ctx);
-  var rows=[['학번','이름','학교 이메일','활동일','제목','상태','인상적인 장면','질문과 나의 답','장면과 사상의 연결','향후 더 알아보고 싶은 점','교사 피드백']];
+  var rows=[['학번','이름','학교 이메일','활동일','제목','상태','인상적인 장면','질문과 나의 답','장면과 사상의 연결','향후 더 알아보고 싶은 점','교사 피드백','활동 유형','발제 번호','독서 활동 기록']];
   rows_(ctx.db,'Entries').forEach(function(e){
     var m=rows_(ctx.db,'Members').find(function(x){return x.email===e.email;})||{}, d=json_(e.data,{});
     rows.push([m.studentNo,m.name,e.email,e.activityDate,e.title,e.status==='submitted'?'제출':'작성 중',d.scene,
-      (d.questions||[]).map(function(q,i){return (i+1)+'. '+q.question+'\n나의 답: '+q.answer;}).join('\n\n'),d.connection,d.future,e.feedback]);
+      (d.questions||[]).map(function(q,i){return (i+1)+'. '+q.question+'\n나의 답: '+q.answer;}).join('\n\n'),d.connection,d.future,e.feedback,recordKind_(d),d.round||'',recordKind_(d)==='movie'?'':JSON.stringify(d)]);
   });
   return {csv:'\uFEFF'+rows.map(function(r){return r.map(csvCell_).join(',');}).join('\r\n')};
 }
@@ -214,6 +223,7 @@ function api(b) {
     lock=LockService.getScriptLock();
     if(!lock.tryLock(10000)) fail_('다른 기록을 저장 중입니다. 잠시 후 다시 시도해 주세요.','BUSY');
     var ctx={email:who.email,isTeacher:who.isTeacher,db:db_(who),teacherEmails:json_(PropertiesService.getScriptProperties().getProperty('TEACHER_EMAILS'),[])};
+    ensureReadingSchema_(ctx.db);
     member_(ctx);
     var result, action=text_(b.action,30);
     if(action==='bootstrap') result=state_(ctx);
@@ -225,6 +235,10 @@ function api(b) {
     } else {
       approved_(ctx);
       if(action==='save') result=save_(ctx,b);
+      else if(action==='seminarClaim') result=claimSeminar_(ctx,b);
+      else if(action==='seminarAssign') result=assignSeminar_(ctx,b);
+      else if(action==='seminarSave') result=saveSeminar_(ctx,b);
+      else if(action==='seminarUnpublish') result=unpublishSeminar_(ctx,b);
       else if(action==='publish') result=publish_(ctx,b);
       else if(action==='unpublish') {
         teacher_(ctx); entry_(ctx,text_(b.entryId,80));

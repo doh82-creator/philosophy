@@ -1,7 +1,7 @@
 import vm from 'node:vm';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-const source=fs.readFileSync(new URL('../Code.gs',import.meta.url),'utf8');
+const source=fs.readFileSync(new URL('../Code.gs',import.meta.url),'utf8')+'\n'+fs.readFileSync(new URL('../ReadingServer.gs',import.meta.url),'utf8');
 export function createApp(){
  let active='',uuid=0;
  const props={DB_ID:'test-book',TEACHER_EMAILS:JSON.stringify(['teacher@cnsa.hs.kr']),SCHOOL_DOMAIN:'cnsa.hs.kr'};
@@ -17,7 +17,7 @@ export function createApp(){
   getRange(...args){return new Range(this,...args);}getLastRow(){return this.values.length;}
   setFrozenRows(){return this;}
  }
- const book={sheets:{},getSheetByName(n){return this.sheets[n]},getUrl(){return 'https://example.invalid/test-book'}};
+ const book={sheets:{},getSheetByName(n){return this.sheets[n]},insertSheet(n){const sheet=new Sheet(n,[]);this.sheets[n]=sheet;return sheet;},getUrl(){return 'https://example.invalid/test-book'}};
  const context=vm.createContext({console,Date,JSON,Number,Object,Array,String,Error,RegExp,isNaN,
   Session:{getActiveUser:()=>({getEmail:()=>active})},
   PropertiesService:{getScriptProperties:()=>({getProperty:k=>props[k]??null,setProperties:v=>Object.assign(props,v)})},

@@ -6,8 +6,10 @@ let code=fs.readFileSync(path.join(root,'Code.gs'),'utf8');
 // Only the whitelisted view is substituted after HTML assembly.
 code=code.replace("  var template=HtmlService.createTemplateFromFile('Index');\n",'');
 code=code.replace('  template.initialView=','  var initialView=');
-code=code.replace('return template.evaluate()',"return HtmlService.createHtmlOutput(MOVIE_PAGE_.replace('<?= initialView ?>',initialView))");
+code=code.replace('  template.initialRound=','  var initialRound=').replaceAll('template.initialRound','initialRound');
+code=code.replace('return template.evaluate()',"return HtmlService.createHtmlOutput(MOVIE_PAGE_.replace('<?= initialView ?>',initialView).replace('<?= initialRound ?>',String(initialRound)))");
 code=code.replace("function include_(name) { return HtmlService.createHtmlOutputFromFile(name).getContent(); }",'');
+code+='\n'+fs.readFileSync(path.join(root,'ReadingServer.gs'),'utf8');
 code+='\n\n// 화면을 포함한 단일 파일 배포본입니다.\nvar MOVIE_PAGE_ = '+JSON.stringify(html)+';\n';
 fs.mkdirSync(path.join(root,'dist'),{recursive:true});
 fs.writeFileSync(path.join(root,'dist','한나아렌트_웹앱_Code.gs'),code);
