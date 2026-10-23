@@ -168,6 +168,22 @@
     #s9 { break-before: page; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
+
+  /* 온라인 감상 기록과 같은 작성 흐름 */
+  .journal-purpose { font-size: 14px; color: var(--sub); background: #f1f4f9; border-radius: 8px; padding: 12px 14px; }
+  .journal-meta { font-size: 14px; margin: 14px 0; }
+  .journal-item { break-inside: avoid; }
+  .journal-hint { color: var(--sub); font-size: 14px; line-height: 1.6; margin: 0 0 4px; }
+  .journal-online { margin-top: 14px; font-size: 14px; }
+  .journal-online a { color: var(--accent); }
+  @media print {
+    .journal-online { display: none; }
+    .journal-sheet { padding: 18px; }
+    .journal-sheet .q { font-size: 13px; }
+    .journal-hint, .journal-purpose, .journal-meta { font-size: 11px; }
+    .journal-sheet .lines { height: 72px; background: repeating-linear-gradient(to bottom, transparent 0 23px, #c9cdd6 23px 24px); }
+    .journal-sheet .lines.s { height: 48px; }
+  }
 </style>
 <link rel="stylesheet" href="document-nav.css">
 </head>
@@ -208,7 +224,7 @@
     <a href="#s6">⑥ 보면서 살필 것</a>
     <a href="#s7">⑦ 토의 질문</a>
     <a href="#s8">⑧ 운영안</a>
-    <a href="#s9">⑨ 활동지</a>
+    <a href="#s9">⑨ 활동일지</a>
     <a href="#journal">온라인 감상 기록</a>
     <a href="#s10">⑩ 영화와 실제</a>
   </nav>
@@ -537,38 +553,48 @@
 
   <!-- 9 -->
   <section id="s9">
-    <h2><span class="num">9</span>활동지</h2>
-    <p class="desc">이 부분만 인쇄해 나누어 줄 수 있습니다. 인쇄하면 새 쪽에서 시작합니다.</p>
-    <div class="sheet">
+    <h2><span class="num">9</span>활동일지</h2>
+    <p class="desc">온라인 활동 기록과 같은 흐름으로 작성합니다. 영화에서 생긴 질문을 《인간의 조건》 읽기로 이어 갑니다. 인쇄하면 새 쪽에서 시작합니다.</p>
+    <div class="sheet journal-sheet">
       <div class="top">
-        <b>영화 〈한나 아렌트〉 감상 활동지</b>
+        <b>영화 〈한나 아렌트〉 감상 활동일지</b>
         <span>학번 ________ 이름 ____________</span>
       </div>
+      <p class="journal-purpose">《인간의 조건》을 읽기 위한 선행 활동입니다. 영화의 내용을 정답처럼 정리하기보다, 아렌트가 무엇을 이해하려 했는지 살펴보고 나의 질문을 남깁니다.</p>
+      <p class="journal-meta">활동일 ____________　기록 제목 ____________________________________</p>
 
-      <p class="q">1. 영화 속 아이히만은 어떤 사람으로 보였는가? <small>(말투, 표정, 태도)</small></p>
-      <div class="lines s"></div>
-
-      <p class="q">2. 인물들의 입장 정리</p>
-      <table>
-        <tr><th style="width:26%">인물</th><th style="width:18%">찬성 / 반대</th><th>그렇게 생각한 이유</th></tr>
-        <tr><td>한스 요나스</td><td></td><td></td></tr>
-        <tr><td>쿠르트 블루멘펠트</td><td></td><td></td></tr>
-        <tr><td>메리 매카시</td><td></td><td></td></tr>
-        <tr><td>나</td><td></td><td></td></tr>
-      </table>
-
-      <p class="q">3. "악의 평범성"을 내 말로 설명하면?</p>
-      <div class="lines s"></div>
-
-      <p class="q">4. 마지막 강의에서 가장 마음에 남은 말과 그 이유</p>
-      <div class="lines"></div>
-
-      <p class="q">5. 내 주변에서 찾은 "생각하지 않음"의 예 <small>(학교, 온라인, 사회)</small></p>
-      <div class="lines"></div>
-
-      <p class="q">6. 이 영화에 붙이는 한 줄 평</p>
-      <div class="lines s"></div>
+      <div class="journal-item">
+        <p class="q">1. 마음에 남거나 불편했던 장면</p>
+        <p class="journal-hint">어떤 장면이나 대사였나요? 그 장면이 기억에 남은 이유를 구체적으로 적어 주세요.</p>
+        <div class="lines" aria-label="장면과 이유 작성란"></div>
+      </div>
+      <div class="journal-item">
+        <p class="q">2. 그 장면에서 발견한 아렌트의 고민</p>
+        <p class="journal-hint">아렌트는 무엇을 이해하려 했나요? 장면을 근거로 그가 붙들고 있던 질문을 자신의 말로 적어 주세요.</p>
+        <div class="lines" aria-label="아렌트의 고민 작성란"></div>
+      </div>
+      <div class="journal-item">
+        <p class="q">3. 나의 판단과 근거, 다른 관점</p>
+        <p class="journal-hint">아렌트의 생각이나 행동에 대해 지금 나는 어떻게 판단하나요? 그 이유와 영화 속 근거를 쓰고, 다르게 생각하는 사람의 이유도 함께 살펴보세요.</p>
+        <div class="lines" aria-label="판단과 근거 작성란"></div>
+      </div>
+      <div class="journal-item">
+        <p class="q">4. 《인간의 조건》에 가져갈 질문</p>
+        <p class="journal-hint">영화에서 생긴 질문 중 책을 읽으며 더 탐색하고 싶은 질문 하나를 쓰고, 그 질문을 고른 이유를 적어 주세요. 아직 책의 개념을 몰라도 괜찮습니다.</p>
+        <div class="lines" aria-label="독서로 이어갈 질문 작성란"></div>
+      </div>
+      <div class="journal-item">
+        <p class="q">5. 아직 이해되지 않거나 판단을 보류한 부분</p>
+        <p class="journal-hint">무엇이 어렵거나 확신하기 힘든가요? 더 알고 싶은 점이나 함께 이야기할 내용을 남겨 주세요.</p>
+        <div class="lines s" aria-label="미해결 부분 작성란"></div>
+      </div>
+      <div class="journal-item">
+        <p class="q">6. 대화 후 다시 생각하기 <small>토의 후 작성</small></p>
+        <p class="journal-hint">친구의 어떤 말이나 질문이 내 생각에 영향을 주었나요? 달라진 생각 또는 유지한 판단과 그 이유를 적어 주세요.</p>
+        <div class="lines" aria-label="대화 후 성찰 작성란"></div>
+      </div>
     </div>
+    <p class="journal-online"><a href="https://arendt-philosophy-journal.ddoh82.chatgpt.site/?view=write">온라인 활동 기록하기 ↗</a> · <a href="./index.html#journal">활동 기록과 공유 안내</a></p>
   </section>
 
   <!-- 10 -->
@@ -603,5 +629,6 @@
 <div class="ph-portal-return"><a href="./index.html">← 철학 자료 포털로 돌아가기</a></div>
 </body>
 </html>
+
 
 
