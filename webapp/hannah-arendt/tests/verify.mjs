@@ -73,4 +73,10 @@ const formula=payload(crypto.randomUUID(),0);formula.title='=HYPERLINK("https://
 ok(req(T,{action:'export'}).csv.includes("'=HYPERLINK"));
 equal(call(T,{action:'member',email:T,status:'blocked'}).code,'INVALID');
 equal(call(A,{action:'not-real'}).code,'INVALID');
+app.props.INSTALLER_EMAIL=T;
+call(A,{action:'bootstrap'});
+assert.throws(()=>app.context.initializeApp(),/지정된 교사/);checks++;
+delete app.props.INSTALLER_EMAIL;
+call(T,{action:'bootstrap'});
+assert.throws(()=>app.context.initializeApp(),/지정된 교사/);checks++;
 console.log(`PASS ${checks} permission, ownership, history, publication, conflict and validation checks`);

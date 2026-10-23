@@ -13,6 +13,14 @@ var FIELD_LABELS_ = {
   future: '향후 더 알아보고 싶은 점'
 };
 
+/** 편집기의 INSTALLER_EMAIL에 지정한 교사만 초기 설정을 실행합니다. */
+function initializeApp() {
+  var expected=String(PropertiesService.getScriptProperties().getProperty('INSTALLER_EMAIL')||'').toLowerCase();
+  var current=String(Session.getActiveUser().getEmail()||'').toLowerCase();
+  if(!expected || current!==expected) throw new Error('프로젝트 설정의 INSTALLER_EMAIL에 지정된 교사만 초기 설정을 실행할 수 있습니다.');
+  return install_();
+}
+
 /** 편집기에서 학교 계정으로 한 번 실행합니다. 브라우저에서 호출할 수 없습니다. */
 function install_() {
   var email = String(Session.getActiveUser().getEmail() || '').toLowerCase();
