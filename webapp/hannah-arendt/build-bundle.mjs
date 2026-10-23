@@ -3,7 +3,10 @@ import path from 'node:path';
 const root=path.dirname(new URL(import.meta.url).pathname);
 let html=fs.readFileSync(path.join(root,'Index.html'),'utf8').replace(/<\?!= include_\('([^']+)'\); \?>/g,(_,name)=>fs.readFileSync(path.join(root,name+'.html'),'utf8'));
 let code=fs.readFileSync(path.join(root,'Code.gs'),'utf8');
-code=code.replace("HtmlService.createTemplateFromFile('Index')","HtmlService.createTemplate(MOVIE_PAGE_)");
+// Only the whitelisted view is substituted after HTML assembly.
+code=code.replace("  var template=HtmlService.createTemplateFromFile('Index');\n",'');
+code=code.replace('  template.initialView=','  var initialView=');
+code=code.replace('return template.evaluate()',"return HtmlService.createHtmlOutput(MOVIE_PAGE_.replace('<?= initialView ?>',initialView))");
 code=code.replace("function include_(name) { return HtmlService.createHtmlOutputFromFile(name).getContent(); }",'');
 code+='\n\n// 화면을 포함한 단일 파일 배포본입니다.\nvar MOVIE_PAGE_ = '+JSON.stringify(html)+';\n';
 fs.mkdirSync(path.join(root,'dist'),{recursive:true});
