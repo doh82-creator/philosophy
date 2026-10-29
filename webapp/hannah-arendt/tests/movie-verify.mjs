@@ -20,7 +20,7 @@ req(T,{action:'publish',entryId:mainId,revision:1,fields:['scene']});
 const oldIds=[crypto.randomUUID(),crypto.randomUUID()];
 const entrySheet=app.book.sheets.Entries,headers=entrySheet.values[0];
 for(const [i,id]of oldIds.entries()){
- const old={id,email:A,title:'보관할 이전 초안 '+(i+1),activityDate:'2026-10-28',revision:3,status:'draft',data:JSON.stringify({...data,scene:'이전 초안 원문 '+i}),createdAt:'2026-10-28T06:00:00.000Z',updatedAt:'2099-01-01T00:00:0'+i+'.000Z',submittedAt:'',feedback:'',feedbackAt:''};
+ const old={id,email:A,title:'보관할 이전 초안 '+(i+1),activityDate:'2026-10-28',revision:3,status:'draft',data:JSON.stringify({...data,scene:'이전 초안 원문 '+i}),createdAt:'2026-10-28T06:00:00.000Z',updatedAt:'2020-01-01T00:00:0'+i+'.000Z',submittedAt:'',feedback:'',feedbackAt:''};
  entrySheet.values.push(headers.map(k=>old[k]??''));
 }
 const before=JSON.stringify(entrySheet.values),versionsBefore=JSON.stringify(app.book.sheets.Versions.values),publicationsBefore=JSON.stringify(app.book.sheets.Publications.values);
@@ -46,6 +46,10 @@ eq(app.context.primaryMovie_(rawMovies,A).id,mainId);
 // 제출본이 없는 기존 중복은 최신 초안을 선택하며 배열 순서에 영향을 받지 않습니다.
 const drafts=rawMovies.filter(e=>oldIds.includes(e.id));
 eq(app.context.primaryMovie_(drafts,A).id,oldIds[1]);eq(app.context.primaryMovie_([...drafts].reverse(),A).id,oldIds[1]);
+const latestDraft={...rawMovies.find(e=>e.id===mainId),id:crypto.randomUUID(),status:'draft',submittedAt:'',updatedAt:'2099-01-01T00:00:00.000Z'};
+eq(app.context.primaryMovie_([...rawMovies,latestDraft],A).id,latestDraft.id);
+eq(app.context.primaryMovie_([latestDraft,...rawMovies],A).id,latestDraft.id);
+
 const reading=fs.readFileSync(new URL('../ReadingClient.html',import.meta.url),'utf8').replace(/^<script>\s*|\s*<\/script>\s*$/g,'');
 const client=fs.readFileSync(new URL('../Client.html',import.meta.url),'utf8').replace(/^<script>\s*/,'').split("document.addEventListener('click'")[0];
 const context=vm.createContext({console,Date,Intl,crypto,setTimeout,clearTimeout,document:{body:{dataset:{initialRound:'0'}},querySelector:()=>null},window:{}});
@@ -56,15 +60,16 @@ eq(run('form.id'),mainId);eq(run('form.data.scene'),'제출한 장면');
 run("form.data.scene='화면에서만 바꾼 내용'");eq(run('myMovie().data.scene'),'제출한 장면');
 run('form=null;newForm()');eq(run('form.id'),mainId);
 eq((run('archiveView()').match(/class="record-card"/g)||[]).length,1);
-ok(run('archiveView()').includes('영화 활동지 이어 쓰기'));ok(run('archiveView()').includes('이전 기록 2건'));
+ok(run('archiveView()').includes('영화 활동지 이어 쓰기'));ok(!run('archiveView()').includes('이전 기록 2건'));
 ok(!run('writeView()').includes('새 기록'));
 run("var capturedModal='';modal=(title,html)=>{capturedModal=html};openPreviousCopies("+JSON.stringify(mainId)+')');
 ok(run('capturedModal').includes('보관할 이전 초안 1'));ok(run('capturedModal').includes('보관할 이전 초안 2'));
+run('openRecord('+JSON.stringify(mainId)+')');ok(run('capturedModal').includes('이전 기록 2건'));
 run('openRecord('+JSON.stringify(oldIds[0])+')');
 ok(run('capturedModal').includes('이전 초안 원문 0'));ok(run('capturedModal').includes('읽기 전용'));
 ok(!run('capturedModal').includes('data-action="edit"'));
 setState(req(T,{action:'bootstrap'}));
-const table=run('teacherView()');eq((table.match(/<tr><td><b>/g)||[]).length,2);ok(table.includes('이전 기록 2건'));
+const table=run('teacherView()');eq((table.match(/<tr><td><b>/g)||[]).length,2);ok(!table.includes('이전 기록 2건'));
 run('openRecord('+JSON.stringify(oldIds[0])+')');ok(!run('capturedModal').includes('data-form="feedback"'));ok(!run('capturedModal').includes('공유 내용 미리보기'));
 setState({...state,entries:[]});run('form=null;newForm()');const freshId=run('form.id');ok(freshId!==mainId);eq(run('form.data.scene'),'');
 console.log(`PASS ${checks} single-movie, legacy preservation, resume and dashboard checks`);

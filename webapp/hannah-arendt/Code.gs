@@ -123,9 +123,8 @@ function entry_(ctx,id) {
 function primaryMovie_(entries,email) {
   return entries.filter(function(e){return e.email===email && recordKind_(json_(e.data,{}))==='movie';})
     .sort(function(a,b){
-      var aSubmitted=!!a.submittedAt || a.status==='submitted', bSubmitted=!!b.submittedAt || b.status==='submitted';
-      return Number(bSubmitted)-Number(aSubmitted) || String(b.submittedAt||'').localeCompare(String(a.submittedAt||''))
-        || String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')) || String(a.id).localeCompare(String(b.id));
+      return String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||''))
+        || String(b.createdAt||'').localeCompare(String(a.createdAt||'')) || String(a.id).localeCompare(String(b.id));
     })[0] || null;
 }
 function previousCopyOf_(ctx,e) {
