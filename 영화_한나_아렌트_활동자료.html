@@ -26,6 +26,14 @@
   header .inner { max-width: 920px; margin: 0 auto; }
   .back { display: inline-block; color: #fff; opacity: .8; font-size: 14px; text-decoration: none; margin: 0 16px 26px 0; }
   .back:hover { opacity: 1; text-decoration: underline; }
+  .header-tools { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+  .header-links { display: flex; flex-wrap: wrap; gap: 8px 0; }
+  .header-tools .back { margin-bottom: 0; }
+  .film-play-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none; padding: 10px 16px; border: 1px solid #e3c56a; border-radius: 10px; background: #e3c56a; color: #22262e; font-size: 14px; font-weight: 700; line-height: 1.7; text-decoration: none; white-space: nowrap; }
+  .film-play-link:hover { background: #f2d982; border-color: #f2d982; }
+  .film-play-link:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+  @media (max-width: 600px) { .header-tools { flex-wrap: wrap; } .header-links { width: 100%; } }
+  @media print { .header-tools { display: none; } }
   .eyebrow { font-size: 14px; letter-spacing: .08em; color: #e3c56a; margin: 0 0 8px; }
   h1 { font-size: clamp(30px, 5.5vw, 46px); line-height: 1.2; margin: 0 0 6px; }
   .by { margin: 0 0 18px; opacity: .8; }
@@ -197,8 +205,13 @@
 
 <header>
   <div class="inner">
-    <a class="back" href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내</a>
-    <a class="back" href="해설_전체주의.html">← 해설: 전체주의</a>
+    <div class="header-tools">
+      <div class="header-links">
+        <a class="back" href="현대철학_독서동아리_활동안내.html">← 동아리 활동 안내</a>
+        <a class="back" href="해설_전체주의.html">← 해설: 전체주의</a>
+      </div>
+      <a class="film-play-link" href="한나_아렌트_지정9구간_자동재생.html" target="_blank" rel="noopener" aria-label="한나 아렌트 지정 9구간 재생 화면 열기 (새 탭)"><span aria-hidden="true">▶</span> 영화 구간 재생</a>
+    </div>
     <p class="eyebrow">영화로 만나는 철학자</p>
     <h1>한나 아렌트</h1>
     <p class="by">감독 마가레테 폰 트로타 · 2012</p>
