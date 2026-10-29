@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "node preview-server.mjs",
-    "test": "node tests/verify.mjs && node tests/reading-verify.mjs"
+    "test": "node tests/verify.mjs && node tests/reading-verify.mjs && node tests/movie-verify.mjs"
   }
 }
+

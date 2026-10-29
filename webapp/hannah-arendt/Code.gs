@@ -119,11 +119,25 @@ function entry_(ctx,id) {
   if(!e || (!ctx.isTeacher && e.email!==ctx.email)) fail_('이 기록을 열람할 수 없습니다.','FORBIDDEN');
   return e;
 }
+// 영화 활동지는 계정별 하나입니다. 예전 중복 기록은 원본을 남겨 읽기 전용으로 제공합니다.
+function primaryMovie_(entries,email) {
+  return entries.filter(function(e){return e.email===email && recordKind_(json_(e.data,{}))==='movie';})
+    .sort(function(a,b){
+      var aSubmitted=!!a.submittedAt || a.status==='submitted', bSubmitted=!!b.submittedAt || b.status==='submitted';
+      return Number(bSubmitted)-Number(aSubmitted) || String(b.submittedAt||'').localeCompare(String(a.submittedAt||''))
+        || String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')) || String(a.id).localeCompare(String(b.id));
+    })[0] || null;
+}
+function previousCopyOf_(ctx,e) {
+  if(recordKind_(json_(e.data,{}))!=='movie')return '';
+  var primary=primaryMovie_(rows_(ctx.db,'Entries'),e.email);
+  return primary && primary.id!==e.id ? primary.id : '';
+}
 function entryView_(e,ctx) {
   var m=rows_(ctx.db,'Members').find(function(x){return x.email===e.email;}) || {};
   return {id:e.id,email:e.email,name:m.name||'',studentNo:m.studentNo||'',title:e.title,activityDate:e.activityDate,
     revision:Number(e.revision),status:e.status,data:json_(e.data,{}),createdAt:e.createdAt,updatedAt:e.updatedAt,
-    submittedAt:e.submittedAt,feedback:e.feedback||'',feedbackAt:e.feedbackAt||''};
+    submittedAt:e.submittedAt,feedback:e.feedback||'',feedbackAt:e.feedbackAt||'',previousCopyOf:previousCopyOf_(ctx,e)};
 }
 function publicationView_(p) {
   return {entryId:p.entryId,revision:Number(p.revision),author:p.author,title:p.title,activityDate:p.activityDate,
@@ -170,6 +184,10 @@ function save_(ctx,b) {
     fail_('다른 창에서 기록이 변경되었습니다. 현재 내용을 내려받은 뒤 새로고침해 주세요.','CONFLICT');
   if(!ctx.member.name || (!ctx.isTeacher && !ctx.member.studentNo)) fail_('먼저 이름과 학번을 입력해 주세요.','PROFILE');
   var submitted=b.submit===true, data=cleanData_(b.data,submitted,ctx,e);
+  if(recordKind_(data)==='movie') {
+    var primary=primaryMovie_(rows_(ctx.db,'Entries'),ctx.email);
+    if(primary && (!e || e.id!==primary.id))fail_('영화 활동지는 한 개만 작성할 수 있습니다. 현재 입력 내용을 내려받아 보관한 뒤 새로고침하여 기존 활동지를 이어서 수정해 주세요.','CONFLICT');
+  }
   if(data.kind && rows_(ctx.db,'Entries').some(function(x){var d=json_(x.data,{});return x.id!==id&&x.email===ctx.email&&d.kind===data.kind&&Number(d.round)===data.round;}))fail_('이 발제의 기록이 이미 있습니다. 나의 활동 기록에서 이어서 수정해 주세요.','CONFLICT');
   var day=text_(b.activityDate,10);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(day) || isNaN(new Date(day+'T00:00:00Z').getTime())) fail_('활동일을 확인해 주세요.');
@@ -187,6 +205,7 @@ function save_(ctx,b) {
 function publish_(ctx,b) {
   teacher_(ctx);
   var e=entry_(ctx,text_(b.entryId,80));
+  if(previousCopyOf_(ctx,e))fail_('보관된 이전 기록입니다. 현재 활동지의 제출본을 선택해 주세요.');
   if(e.status!=='submitted') fail_('학생이 제출한 기록만 공유할 수 있습니다. 작성 중인 기록은 공유하지 않습니다.');
   if(Number(b.revision)!==Number(e.revision)) fail_('기록이 변경되었습니다. 최신 제출본을 다시 확인해 주세요.','CONFLICT');
   var owner=rows_(ctx.db,'Members').find(function(m){return m.email===e.email;});
@@ -268,3 +287,4 @@ function api(b) {
     return {ok:false,code:e.appCode||'SERVER',error:e.appCode?e.message:'처리하지 못했습니다. 입력 내용은 그대로 유지됩니다. 잠시 후 다시 시도해 주세요.'};
   } finally { if(lock) lock.releaseLock(); }
 }
+
